@@ -23,7 +23,8 @@ putty_context = AppContext(executable="putty")
 code_context = AppContext(executable="code")
 firefox_context = AppContext(executable="firefox")
 discord_context = AppContext(executable="discord")
-vim_context = (putty_context | code_context | firefox_context | discord_context)
+franz_context = AppContext(executable="Franz")
+vim_context = (putty_context | code_context | firefox_context | discord_context | franz_context)
 
 # the bootstrapper loads the grammar
 VimBootstrap = Grammar("vim bootstrap", context=vim_context)
