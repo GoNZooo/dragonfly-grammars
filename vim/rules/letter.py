@@ -18,7 +18,7 @@ def words(dictation):
 
 
 def snake_case(dictation):
-    response = '_'.join(words(dictation))
+    response = '_'.join(words(dictation)).lower()
     return response
 
 
