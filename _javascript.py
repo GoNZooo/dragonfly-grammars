@@ -29,6 +29,7 @@ class JavaScriptUtilities(MappingRule):
         "statement if":
         Text("if (") + sleep_exit(25) + Text("lmzi) {") + Key("enter")
         + sleep_exit(25) + Text("`z"),
+        "statement switch": Text("switch (%%) {}") + replace_percentage(25),
         "good if": Text("%% ? _ : _") + replace_percentage(25),
         "exported function": Text("export ") + insert_function(),
         "anonymous function": Text("(%%) => {}") + replace_percentage(25),
@@ -46,6 +47,7 @@ class JavaScriptUtilities(MappingRule):
         "check not somewhat equal": Text(" != "),
         "arrow": Text(" => "),
         "equals": Text(" = "),
+        "a sink": Text("async "),
     }
 
     extras = []
