@@ -30,9 +30,10 @@ terminal_preview_context = AppContext(executable="WindowsTerminal")
 ripcord_context = AppContext(executable="Ripcord")
 skype_context = AppContext(title="Skype")
 edge_context = AppContext(executable="msedge")
+slack_context = AppContext(title="Slack")
 vim_context = (putty_context | code_context | firefox_context | terminal_preview_context |
                discord_context | powerbash_context | cmder_context | graphical_neovim_context |
-               skype_context | ripcord_context | edge_context)
+               skype_context | ripcord_context | edge_context | slack_context)
 
 # the bootstrapper loads the grammar
 VimBootstrap = Grammar("vim bootstrap", context=vim_context)
