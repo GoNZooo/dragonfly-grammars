@@ -26,20 +26,20 @@ class ZigDisabler(CompoundRule):
 
 class ZigUtilities(MappingRule):
     mapping = {
-        "if": Text("if (%%) {} else {}") + replace_percentage(15),
+        "if": Text("if (%%) {} _") + replace_percentage(15),
         "for loop": Text("for (%%) |_| {}") + replace_percentage(15),
-        "while loop": Text("while (%%) (_) {}") + replace_percentage(15),
+        "while loop": Text("while (%%) _ {}") + replace_percentage(15),
         "switch": Text("switch (%%) {}") + replace_percentage(15),
 
         "const": Text("const %% = ;") + replace_percentage(15),
         "variable": Text("var %% = ;") + replace_percentage(15),
-        "exported function": Text("pub ") + insert_function(),
+        "public function": Text("pub ") + insert_function(),
         "function": insert_function(),
         "a sink": Text("async "),
-        "await": Text("await %%;") + replace_percentage(15),
-        "try": Text("try %%;") + replace_percentage(15),
+        "await": Text("await "),
+        "try": Text("try "),
         "catch": Text("catch "),
-        "defer": Text("defer %%;") + replace_percentage(15),
+        "defer": Text("defer "),
         "import": Text("const %% = @import(_);") + replace_percentage(15),
         "compile time": Text("comptime "),
 
