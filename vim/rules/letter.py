@@ -3,7 +3,7 @@ from dragonfly import (Choice, MappingRule, CompoundRule, Key, IntegerRef,
 
 from ..choices.letter import letter_choice
 
-formattings = ["snake", "camel", "uppercase", "together", "proper", "barbecue", "lowercase"]
+formattings = ["snake", "camel", "uppercase", "together", "proper", "barbecue", "lowercase", "Ada"]
 formatting_map = {}
 for f in formattings:
     formatting_map[f] = f
@@ -48,6 +48,11 @@ def barbecue(dictation):
     return response
 
 
+def ada(dictation):
+    response = "_".join([word.capitalize() for word in words(dictation)])
+    return response
+
+
 def format_text(dictation, format_type=None):
     if format_type == "snake":
         response = snake_case(dictation)
@@ -69,6 +74,9 @@ def format_text(dictation, format_type=None):
         return Text(response).execute()
     elif format_type == "barbecue":
         response = barbecue(dictation)
+        return Text(response).execute()
+    elif format_type == "Ada":
+        response = ada(dictation)
         return Text(response).execute()
 
 
