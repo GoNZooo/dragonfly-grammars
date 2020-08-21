@@ -33,6 +33,7 @@ class ZigUtilities(MappingRule):
 
         "const": Text("const %% = ;") + replace_percentage(15),
         "variable": Text("var %% = ;") + replace_percentage(15),
+        "test": Text("test \"%%\" {}") + replace_percentage(15),
         "public function": Text("pub ") + insert_function(),
         "function": insert_function(),
         "a sink": Text("async "),
