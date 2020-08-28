@@ -89,21 +89,21 @@ def letter_choice(name="letter"):
         'dub': 'dquote',
         'sing': 'squote',
 
-        '(underscore | score)': 'underscore',
+        'score': 'underscore',
         'quest': 'question',
 
         'ampersand': 'ampersand',
         '(apostrophe | post)': 'apostrophe',
-        '(asterisk | starling)': 'asterisk',
+        'starling': 'asterisk',
         'at sign': 'at',
         'backslash': 'backslash',
-        '(dot|period|prick)': 'dot',
+        'prick': 'dot',
         'hashtag': 'hash',
         'hyphen': 'hyphen',
         'minus': 'minus',
-        '(modulo|purse)': 'percent',
+        'purse': 'percent',
         'plus': 'plus',
-        'semicolon': 'semicolon',
+        'semi': 'semicolon',
         'tilde': 'tilde',
 
         # parens
