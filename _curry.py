@@ -22,12 +22,12 @@ class CurryDisabler(CompoundRule):
 
 class CurryUtilities(MappingRule):
     mapping = {
-        "if": Text("if %% then _ else _") + replace_percentage(25),
-        "case": Text("case %% of") + replace_percentage(25),
-        "anonymous function": Text("\\%% -> _") + replace_percentage(25),
-        "type signature": Text("%% :: _") + replace_percentage(25),
-        "qualified Haskell import": Text("import qualified %% as _") + replace_percentage(25),
-        "qualified pure script import": Text("import %% as _") + replace_percentage(25),
+        "if": Text("if %% then _ else _") + replace_percentage(15),
+        "case": Text("case %% of") + replace_percentage(15),
+        "anonymous function": Text("\\%% -> _") + replace_percentage(15),
+        "type signature": Text("%% :: _") + replace_percentage(15),
+        "qualified Haskell import": Text("import qualified %% as _") + replace_percentage(15),
+        "qualified pure script import": Text("import %% as _") + replace_percentage(15),
         "check equal": Text(" == "),
         "check not equal": Text(" != "),
         "map": Text(" <$> "),
@@ -44,6 +44,8 @@ class CurryUtilities(MappingRule):
         "monad reader": Text("MonadReader e m"),
         "monad IO": Text("MonadIO m"),
         "monad state": Text("MonadState s m"),
+        "define data type": Text("data %% =") + replace_percentage(15),
+        "define new type": Text("newtype %% =") + replace_percentage(15),
     }
 
     extras = []
