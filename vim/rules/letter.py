@@ -88,53 +88,6 @@ def format_text(dictation, format_type=None):
         return Text(response).execute()
 
 
-operator_selection_map = {}
-operators = [
-    "equals",
-    "check equals",
-    "check really equals",
-    "check not equals",
-    "check really not equals",
-    "map",
-    "apply",
-    "bind",
-    "fat arrow",
-    "arrow",
-
-
-]
-
-for o in operators:
-    operator_selection_map[o] = o
-
-
-def operator_choice(name="operator"):
-    return Choice(name, operator_selection_map)
-
-
-def insert_operator(operator_selection):
-    if operator_selection == "equals":
-        return Text(" = ").execute()
-    elif operator_selection == "check equals":
-        return Text(" == ").execute()
-    elif operator_selection == "check really equals":
-        return Text(" === ").execute()
-    elif operator_selection == "check not equals":
-        return Text(" != ").execute()
-    elif operator_selection == "check really not equals":
-        return Text(" !== ").execute()
-    elif operator_selection == "map":
-        return Text(" <$> ").execute()
-    elif operator_selection == "apply":
-        return Text(" <*> ").execute()
-    elif operator_selection == "bind":
-        return Text(" >>= ").execute()
-    elif operator_selection == "fat arrow":
-        return Text(" => ").execute()
-    elif operator_selection == "arrow":
-        return Text(" -> ").execute()
-
-
 class LetterRule(MappingRule):
     mapping = {
         "<letter>": Key("%(letter)s"),
@@ -148,14 +101,11 @@ class LetterRule(MappingRule):
         "<format_type> <dictation>": Function(format_text),
 
         "control <letter>": Key("c-%(letter)s"),
-
-        "binary <operator_selection>": Function(insert_operator),
     }
 
     extras = [
         letter_choice("letter"),
         formatting_choice("format_type"),
-        operator_choice("operator_selection"),
         IntegerRef("n", 1, 100),
         Dictation("dictation"),
     ]
