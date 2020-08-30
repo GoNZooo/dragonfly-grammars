@@ -25,6 +25,7 @@ class PythonUtilities(MappingRule):
         "statement else if": Text("elif %%:") + replace_percentage(25),
         "statement else": Text("else:") + Key("enter"),
         "statement if": Text("if %%:") + replace_percentage(25),
+        "for loop": Text("for %% in _:") + replace_percentage(25),
         "anonymous function": Text("lambda %%: ") + replace_percentage(25),
         "function": Text("def %%(_):") + replace_percentage(25),
         "from import": Text("from %% import (_)") + replace_percentage(25),
