@@ -41,7 +41,7 @@ class ZigUtilities(MappingRule):
         "try": Text("try "),
         "catch": Text("catch "),
         "defer": Text("defer "),
-        "import": Text("const %% = @import(_);") + replace_percentage(15),
+        "import": Text("const %% = @import(\"_\");") + replace_percentage(15),
         "compile time": Text("comptime "),
 
         "define struct": Text("const %% = struct {};") + replace_percentage(15),
