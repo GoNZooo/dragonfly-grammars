@@ -46,6 +46,7 @@ class CurryUtilities(MappingRule):
         "monad state": Text("MonadState s m"),
         "define data type": Text("data %% =") + replace_percentage(15),
         "define new type": Text("newtype %% =") + replace_percentage(15),
+        "phrase period": Text("period"),
     }
 
     extras = []
