@@ -14,7 +14,7 @@ def formatting_choice(name="formatting"):
 
 
 def words(dictation):
-    return str(dictation).split(' ')
+    return dictation.split(' ')
 
 
 def snake_case(dictation):
@@ -53,30 +53,38 @@ def ada(dictation):
     return response
 
 
+def say_text(dictation):
+    expanded_words = str(dictation).replace(".", " period").lstrip().lower()
+
+    return Text(expanded_words).execute()
+
+
 def format_text(dictation, format_type=None):
+    expanded_words = str(dictation).replace(".", " period").lstrip().lower()
+
     if format_type == "snake":
-        response = snake_case(dictation)
+        response = snake_case(expanded_words)
         return Text(response).execute()
     elif format_type == "camel":
-        response = camel_case(dictation)
+        response = camel_case(expanded_words)
         return Text(response).execute()
     elif format_type == "proper":
-        response = proper(dictation)
+        response = proper(expanded_words)
         return Text(response).execute()
     elif format_type == "together":
-        response = together(dictation)
+        response = together(expanded_words)
         return Text(response).execute()
     elif format_type == "lowercase":
-        response = lowercase(dictation)
+        response = lowercase(expanded_words)
         return Text(response).execute()
     elif format_type == "uppercase":
-        response = uppercase(dictation)
+        response = uppercase(expanded_words)
         return Text(response).execute()
     elif format_type == "barbecue":
-        response = barbecue(dictation)
+        response = barbecue(expanded_words)
         return Text(response).execute()
     elif format_type == "Ada":
-        response = ada(dictation)
+        response = ada(expanded_words)
         return Text(response).execute()
 
 
@@ -92,6 +100,8 @@ operators = [
     "bind",
     "fat arrow",
     "arrow",
+
+
 ]
 
 for o in operators:
@@ -134,7 +144,7 @@ class LetterRule(MappingRule):
         "go [<n>] left": Key("left:%(n)s"),
         "go [<n>] right": Key("right:%(n)s"),
 
-        "say <dictation>": Text("%(dictation)s"),
+        "say <dictation>": Function(say_text),
         "<format_type> <dictation>": Function(format_text),
 
         "control <letter>": Key("c-%(letter)s"),
