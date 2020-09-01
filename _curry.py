@@ -37,6 +37,7 @@ class CurryUtilities(MappingRule):
         "bind": Text(" >>= "),
         "discard": Text(" >> "),
         "equals": Text(" = "),
+        "do bind": Text("%% <- _") + replace_percentage(15),
         "backwards arrow": Text(" <- "),
         "backwards fat arrow": Text(" <= "),
         "arrow": Text(" -> "),
