@@ -24,8 +24,10 @@ class CurryUtilities(MappingRule):
     mapping = {
         "if": Text("if %% then _ else _") + replace_percentage(15),
         "case": Text("case %% of") + replace_percentage(15),
+        "let": Text("let %% = _") + replace_percentage(15),
         "anonymous function": Text("\\%% -> _") + replace_percentage(15),
         "type signature": Text("%% :: _") + replace_percentage(15),
+        "import": Text("import %% (_)") + replace_percentage(15),
         "qualified Haskell import": Text("import qualified %% as _") + replace_percentage(15),
         "qualified pure script import": Text("import %% as _") + replace_percentage(15),
         "check equal": Text(" == "),
