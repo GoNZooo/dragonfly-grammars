@@ -24,7 +24,7 @@ class CurryUtilities(MappingRule):
     mapping = {
         "if": Text("if %% then _ else _") + replace_percentage(15),
         "case": Text("case %% of") + replace_percentage(15),
-        "let": Text("let %% = _") + replace_percentage(15),
+        "let": Text("let %% = _ in") + replace_percentage(15),
         "anonymous function": Text("\\%% -> _") + replace_percentage(15),
         "type signature": Text("%% :: _") + replace_percentage(15),
         "import": Text("import %% (_)") + replace_percentage(15),
