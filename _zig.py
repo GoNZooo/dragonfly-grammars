@@ -1,4 +1,4 @@
-from vim.rules.letter import (snake_case, proper)
+from vim.rules.letter import (snake_case, proper, camel_case)
 from macro_utilities import (replace_in_text)
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function)
 
@@ -90,21 +90,46 @@ def output_while_loop(value_name):
     command.execute()
 
 
+def output_if(value_name):
+    if value_name == "":
+        command = replace_in_text("if ($) {} _")
+    else:
+        value_name = snake_case(str(value_name))
+        command = replace_in_text("if (%s) $ {} _" % value_name)
+    command.execute()
+
+
+def output_switch(value_name):
+    if value_name == "":
+        command = replace_in_text("switch ($) {}")
+    else:
+        value_name = snake_case(str(value_name))
+        command = replace_in_text("switch (%s) {$}" % value_name)
+    command.execute()
+
+
+def output_function(function_name):
+    if function_name == "":
+        command = replace_in_text("fn $(_) _ {}")
+    else:
+        function_name = camel_case(str(function_name))
+        command = replace_in_text("fn %s($) _ {}" % function_name)
+    command.execute()
+
+
 class ZigUtilities(MappingRule):
     mapping = {
-        "if": replace_in_text("if ($) {} _"),
+        "if [<value_name>]": Function(output_if),
         "for loop [over <value_name>]": Function(output_for_loop),
         "while loop [over <value_name>]": Function(output_while_loop),
-        "switch": replace_in_text("switch ($) {}"),
+        "switch [on <value_name>]": Function(output_switch),
 
         "constant [<value_name>]": Function(output_constant),
         "variable [<value_name>]": Function(output_variable),
         "test [<test_name>]": Function(output_test),
         "public": Text("pub "),
         "external": Text("extern "),
-        "function": insert_function(),
-        "public function": Text("pub ") + insert_function(),
-        "external function": Text("extern ") + insert_function(),
+        "function [<function_name>]": Function(output_function),
         "a sink": Text("async "),
         "await": Text("await "),
         "try": Text("try "),
@@ -127,7 +152,8 @@ class ZigUtilities(MappingRule):
     extras = [
         Dictation("test_name", default=""),
         Dictation("value_name", default=""),
-        Dictation("type_name", default="")
+        Dictation("type_name", default=""),
+        Dictation("function_name", default="")
     ]
 
 
