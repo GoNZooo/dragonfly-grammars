@@ -1,5 +1,6 @@
-from dragonfly import (Grammar, CompoundRule, Text, Key, MappingRule)
-from macro_utilities import (replace_percentage)
+from dragonfly import (Grammar, CompoundRule, Text, Key, MappingRule, Dictation, Function)
+from macro_utilities import (replace_in_text)
+from vim.rules.letter import (snake_case)
 
 
 class PythonEnabler(CompoundRule):
@@ -20,26 +21,38 @@ class PythonDisabler(CompoundRule):
         print "Python grammar disabled"
 
 
+def output_function(function_name):
+    if function_name == "":
+        command = replace_in_text("def $(_):")
+        command.execute()
+    else:
+        function_name = snake_case(str(function_name))
+        command = replace_in_text("def %s($):" % function_name)
+        command.execute()
+
+
 class PythonUtilities(MappingRule):
     mapping = {
-        "else if": Text("elif %%:") + replace_percentage(15),
+        "else if": replace_in_text("elif $:"),
         "else": Text("else:") + Key("enter"),
-        "if": Text("if %%:") + replace_percentage(15),
-        "for loop": Text("for %% in _:") + replace_percentage(15),
-        "while loop": Text("while %%:") + replace_percentage(15),
+        "if": replace_in_text("if $:"),
+        "for loop": replace_in_text("for $ in _:"),
+        "while loop": replace_in_text("while $:"),
         "pass": Text("pass"),
-        "class": Text("class %%:") + replace_percentage(15),
-        "anonymous function": Text("lambda %%: ") + replace_percentage(15),
-        "function": Text("def %%(_):") + replace_percentage(15),
-        "from import": Text("from %% import (_)") + replace_percentage(15),
-        "qualified import": Text("import %% as _") + replace_percentage(15),
+        "class": replace_in_text("class $:"),
+        "anonymous function": replace_in_text("lambda $: "),
+        "function [<function_name>]": Function(output_function),
+        "from import": replace_in_text("from $ import (_)"),
+        "qualified import": replace_in_text("import $ as _"),
         "import dragonfly": Text("import dragonfly as dragonfly"),
         "check equal": Text(" == "),
         "check not equal": Text(" != "),
         "equals": Text(" = "),
     }
 
-    extras = []
+    extras = [
+        Dictation("function_name", default="")
+    ]
 
 
 # The main Python grammar rules are activated here
