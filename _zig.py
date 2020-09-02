@@ -7,7 +7,7 @@ def insert_function():
 
 
 class ZigEnabler(CompoundRule):
-    spec = "all your base are belong to us"
+    spec = "enable zig"
 
     def _process_recognition(self, node, extras):
         zigBootstrap.disable()
@@ -16,7 +16,7 @@ class ZigEnabler(CompoundRule):
 
 
 class ZigDisabler(CompoundRule):
-    spec = "take off every zig"
+    spec = "disable zig"
 
     def _process_recognition(self, node, extras):
         zigGrammar.disable()
