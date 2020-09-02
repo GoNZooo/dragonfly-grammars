@@ -1,4 +1,4 @@
-from vim.rules.letter import (snake_case)
+from vim.rules.letter import (snake_case, proper)
 from macro_utilities import (replace_in_text)
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function)
 
@@ -51,6 +51,27 @@ def output_value(value_type, value_name):
     command.execute()
 
 
+def output_struct(type_name):
+    output_type("struct", type_name)
+
+
+def output_union(type_name):
+    output_type("union(enum)", type_name)
+
+
+def output_enumeration(type_name):
+    output_type("enum", type_name)
+
+
+def output_type(prelude, type_name):
+    if type_name == "":
+        command = Text("%s {}" % prelude)
+    else:
+        type_name = proper(str(type_name))
+        command = replace_in_text("const %s = %s {$};" % (type_name, prelude))
+    command.execute()
+
+
 class ZigUtilities(MappingRule):
     mapping = {
         "if": replace_in_text("if ($) {} _"),
@@ -74,12 +95,9 @@ class ZigUtilities(MappingRule):
         "import": replace_in_text("const $ = @import(\"_\");"),
         "compile time": Text("comptime "),
 
-        "define struct": replace_in_text("const $ = struct {};"),
-        "define union": replace_in_text("const $ = union(_) {};"),
-        "define enumeration": replace_in_text("const $ = enum {};"),
-        "struct": Text("struct {}"),
-        "union": Text("union(_) {}"),
-        "enumeration": Text("enum {}"),
+        "struct [<type_name>]": Function(output_struct),
+        "union [<type_name>]": Function(output_union),
+        "enumeration [<type_name>]": Function(output_enumeration),
 
         "check equal": Text(" == "),
         "check not equal": Text(" != "),
@@ -90,7 +108,8 @@ class ZigUtilities(MappingRule):
 
     extras = [
         Dictation("test_name", default=""),
-        Dictation("value_name", default="")
+        Dictation("value_name", default=""),
+        Dictation("type_name", default="")
     ]
 
 
