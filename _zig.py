@@ -1,9 +1,9 @@
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule)
-from macro_utilities import (replace_percentage)
+from macro_utilities import (replace_in_text)
 
 
 def insert_function():
-    return Text("fn %%(_) _ {}") + replace_percentage(25)
+    return replace_in_text("fn $(_) _ {}")
 
 
 class ZigEnabler(CompoundRule):
@@ -26,14 +26,14 @@ class ZigDisabler(CompoundRule):
 
 class ZigUtilities(MappingRule):
     mapping = {
-        "if": Text("if (%%) {} _") + replace_percentage(15),
-        "for loop": Text("for (%%) |_| {}") + replace_percentage(15),
-        "while loop": Text("while (%%) _ {}") + replace_percentage(15),
-        "switch": Text("switch (%%) {}") + replace_percentage(15),
+        "if": replace_in_text("if ($) {} _"),
+        "for loop": replace_in_text("for ($) |_| {}"),
+        "while loop": replace_in_text("while ($) _ {}"),
+        "switch": replace_in_text("switch ($) {}"),
 
-        "const": Text("const %% = ;") + replace_percentage(15),
-        "variable": Text("var %% = ;") + replace_percentage(15),
-        "test": Text("test \"%%\" {}") + replace_percentage(15),
+        "const": replace_in_text("const $ = ;"),
+        "variable": replace_in_text("var $ = ;"),
+        "test": replace_in_text("test \"$\" {}"),
         "public": Text("pub "),
         "external": Text("extern "),
         "function": insert_function(),
@@ -44,12 +44,12 @@ class ZigUtilities(MappingRule):
         "try": Text("try "),
         "catch": Text("catch "),
         "defer": Text("defer "),
-        "import": Text("const %% = @import(\"_\");") + replace_percentage(15),
+        "import": replace_in_text("const $ = @import(\"_\");"),
         "compile time": Text("comptime "),
 
-        "define struct": Text("const %% = struct {};") + replace_percentage(15),
-        "define union": Text("const %% = union(_) {};") + replace_percentage(15),
-        "define enumeration": Text("const %% = enum {};") + replace_percentage(15),
+        "define struct": replace_in_text("const $ = struct {};"),
+        "define union": replace_in_text("const $ = union(_) {};"),
+        "define enumeration": replace_in_text("const $ = enum {};"),
         "struct": Text("struct {}"),
         "union": Text("union(_) {}"),
         "enumeration": Text("enum {}"),
