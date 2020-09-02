@@ -1,5 +1,6 @@
-from dragonfly import (Grammar, CompoundRule, Text, MappingRule)
+from vim.rules.letter import (snake_case)
 from macro_utilities import (replace_in_text)
+from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function)
 
 
 def insert_function():
@@ -24,6 +25,32 @@ class ZigDisabler(CompoundRule):
         print "Zig grammar disabled"
 
 
+def output_test(test_name):
+    if test_name == "":
+        command = replace_in_text("test \"$\" {}")
+    else:
+        command = Text("test \"%s\" {\n" % test_name)
+    command.execute()
+
+
+def output_constant(value_name):
+    output_value("const", value_name)
+
+
+def output_variable(value_name):
+    output_value("var", value_name)
+
+
+def output_value(value_type, value_name):
+    if value_name == "":
+        command = replace_in_text("%s $ = _;" % value_type)
+    else:
+        # `value_name` is a dictation object
+        value_name = snake_case(str(value_name))
+        command = replace_in_text("%s %s = $;" % (value_type, value_name))
+    command.execute()
+
+
 class ZigUtilities(MappingRule):
     mapping = {
         "if": replace_in_text("if ($) {} _"),
@@ -31,9 +58,9 @@ class ZigUtilities(MappingRule):
         "while loop": replace_in_text("while ($) _ {}"),
         "switch": replace_in_text("switch ($) {}"),
 
-        "const": replace_in_text("const $ = ;"),
-        "variable": replace_in_text("var $ = ;"),
-        "test": replace_in_text("test \"$\" {}"),
+        "constant [<value_name>]": Function(output_constant),
+        "variable [<value_name>]": Function(output_variable),
+        "test [<test_name>]": Function(output_test),
         "public": Text("pub "),
         "external": Text("extern "),
         "function": insert_function(),
@@ -61,7 +88,10 @@ class ZigUtilities(MappingRule):
         "pointer": Text("ptr"),
     }
 
-    extras = []
+    extras = [
+        Dictation("test_name", default=""),
+        Dictation("value_name", default="")
+    ]
 
 
 # The main Zig grammar rules are activated here
