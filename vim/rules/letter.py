@@ -101,6 +101,7 @@ class LetterRule(MappingRule):
         "<format_type> <dictation>": Function(format_text),
 
         "control <letter>": Key("c-%(letter)s"),
+        "equals": Text(" = "),
     }
 
     extras = [
