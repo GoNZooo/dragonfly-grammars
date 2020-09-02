@@ -81,11 +81,20 @@ def output_for_loop(value_name):
     command.execute()
 
 
+def output_while_loop(value_name):
+    if value_name == "":
+        command = replace_in_text("while ($) _ {}")
+    else:
+        value_name = snake_case(str(value_name))
+        command = replace_in_text("while (%s.next()) |$| {}" % value_name)
+    command.execute()
+
+
 class ZigUtilities(MappingRule):
     mapping = {
         "if": replace_in_text("if ($) {} _"),
         "for loop [over <value_name>]": Function(output_for_loop),
-        "while loop": replace_in_text("while ($) _ {}"),
+        "while loop [over <value_name>]": Function(output_while_loop),
         "switch": replace_in_text("switch ($) {}"),
 
         "constant [<value_name>]": Function(output_constant),
