@@ -3,9 +3,10 @@ from dragonfly import (Choice, MappingRule, CompoundRule, Key, IntegerRef,
 
 from ..choices.letter import letter_choice
 
-formattings = ["snake", "camel", "uppercase", "together", "proper", "barbecue", "lowercase", "Ada"]
+formatting_types = ["snake", "camel", "uppercase",
+                    "together", "proper", "barbecue", "lowercase", "Ada"]
 formatting_map = {}
-for f in formattings:
+for f in formatting_types:
     formatting_map[f] = f
 
 
