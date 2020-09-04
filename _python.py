@@ -1,4 +1,4 @@
-from dragonfly import (Grammar, CompoundRule, Text, Key, MappingRule, Dictation, Function)
+from dragonfly import (Grammar, CompoundRule, Text, Key, MappingRule, Dictation, Function, Choice)
 from macro_utilities import (replace_in_text)
 from vim.rules.letter import (snake_case, proper)
 
@@ -19,6 +19,32 @@ class PythonDisabler(CompoundRule):
         pythonGrammar.disable()
         pythonBootstrap.enable()
         print "Python grammar disabled"
+
+
+comparison_choice_map = {
+    "equal": "==",
+    "not equal": "!=",
+    "less or equal": "<=",
+    "greater or equal": ">=",
+    "less": "<",
+    "greater": ">",
+    "none": "is None",
+    "not none": "is not None",
+}
+
+
+def comparison_choice(name="comparison"):
+    return Choice(name, comparison_choice_map)
+
+
+def output_if_comparison(name, comparison=None, construct="if"):
+    if comparison is not None:
+        if name == "":
+            command = replace_in_text("%s $ %s:" % (construct, comparison))
+        else:
+            name = format_name(name)
+            command = Text("%s %s %s:" % (construct, name, comparison))
+        command.execute()
 
 
 def output_function(function_name):
@@ -59,20 +85,12 @@ def output_qualified_import(import_name):
     command.execute()
 
 
-def output_if(name):
-    output_if_or_else_if("if", name)
-
-
-def output_else_if(name):
-    output_if_or_else_if("elif", name)
-
-
-def output_if_or_else_if(statement_type, name):
+def output_if(name, statement_type="if"):
     if name == "":
         command = replace_in_text("%s $:" % statement_type)
     else:
         name = format_name(name)
-        command = replace_in_text("%s %s$:" % (statement_type, name))
+        command = Text("%s %s:" % (statement_type, name))
     command.execute()
 
 
@@ -94,65 +112,21 @@ def output_binding(name):
     command.execute()
 
 
-def output_string_from(name):
+def output_wrapped_optional_name(name, around):
     if name == "":
-        command = replace_in_text("str($)")
+        command = replace_in_text("%s($)" % around)
     else:
         name = format_name(name)
-        command = Text("str(%s)" % name)
+        command = Text("%s(%s)" % (around, name))
     command.execute()
 
 
-def output_check_equal(name):
-    output_comparison("==", name)
-
-
-def output_check_not_equal(name):
-    output_comparison("!=", name)
-
-
-def output_comparison(operator, name):
+def output_comparison(name, operator):
     if name == "":
         command = Text(" %s " % operator)
     else:
         name = format_name(name)
         command = Text("%s %s " % (name, operator))
-    command.execute()
-
-
-def output_if_equal(name):
-    if name == "":
-        command = replace_in_text("if $ == _:")
-    else:
-        name = format_name(name)
-        command = replace_in_text("if %s == $:" % name)
-    command.execute()
-
-
-def output_if_not_equal(name):
-    if name == "":
-        command = replace_in_text("if $ != _:")
-    else:
-        name = format_name(name)
-        command = replace_in_text("if %s != $:" % name)
-    command.execute()
-
-
-def output_else_if_equal(name):
-    if name == "":
-        command = replace_in_text("elif $ == _:")
-    else:
-        name = format_name(name)
-        command = replace_in_text("elif %s == $:" % name)
-    command.execute()
-
-
-def output_else_if_not_equal(name):
-    if name == "":
-        command = replace_in_text("elif $ != _:")
-    else:
-        name = format_name(name)
-        command = replace_in_text("elif %s != $:" % name)
     command.execute()
 
 
@@ -180,27 +154,38 @@ def output_length_of(name):
 
 class PythonUtilities(MappingRule):
     mapping = {
-        "else if [<name>]": Function(output_else_if),
-        "else if [<name>] is equal": Function(output_else_if_equal),
-        "else if [<name>] is not equal": Function(output_else_if_not_equal),
+        # control flow
+        "if [<name>] is <comparison>": Function(output_if_comparison, construct="if"),
+        "if [<name>]": Function(output_if, construct="if"),
+
+        "else if [<name>]": Function(output_if, statement_type="elif"),
+        "else if [<name>] is <comparison>": Function(output_if_comparison, construct="elif"),
+
         "else": Text("else:") + Key("enter"),
-        "if [<name>]": Function(output_if),
-        "if [<name>] is equal": Function(output_if_equal),
-        "if [<name>] is not equal": Function(output_if_not_equal),
+
+        # loops
         "for loop [over <name>]": Function(output_for_loop),
         "while loop": replace_in_text("while $:"),
-        "pass": Text("pass"),
+
+        # logic checks
+        "check [<name>] is equal": Function(output_comparison, operator="=="),
+        "check [<name>] is not equal": Function(output_comparison, operator="!="),
+
+        # declarations/definitions
+        "function [<function_name>]": Function(output_function),
         "class [<class_name>] [derives from <superclass>]": Function(output_class),
         "anonymous function [taking <name>]": Function(output_anonymous_function),
-        "function [<function_name>]": Function(output_function),
+        "[<name>] equals": Function(output_binding),
+
+        # imports
         "from [<import_name>] import": Function(output_from_import),
         "qualified import [<import_name>]": Function(output_qualified_import),
         "import dragonfly": Text("import dragonfly as dragonfly"),
-        "check [<name>] is equal": Function(output_check_equal),
-        "check [<name>] is not equal": Function(output_check_not_equal),
-        "[<name>] equals": Function(output_binding),
-        "string from [<name>]": Function(output_string_from),
-        "length of [<name>]": Function(output_length_of),
+
+        # other convenience
+        "string from [<name>]": Function(output_wrapped_optional_name, around="str"),
+        "length of [<name>]": Function(output_wrapped_optional_name, around="len"),
+        "pass": Text("pass"),
     }
 
     extras = [
@@ -209,6 +194,7 @@ class PythonUtilities(MappingRule):
         Dictation("superclass", default=""),
         Dictation("import_name", default=""),
         Dictation("name", default=""),
+        comparison_choice("comparison"),
     ]
 
 
