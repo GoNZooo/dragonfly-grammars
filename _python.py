@@ -1,5 +1,5 @@
 from dragonfly import (Grammar, CompoundRule, Text, Key, MappingRule, Dictation, Function, Choice)
-from macro_utilities import (replace_in_text)
+from macro_utilities import (replace_in_text, comment_choice)
 from vim.rules.letter import (snake_case, proper)
 
 
@@ -152,6 +152,14 @@ def output_length_of(name):
     command.execute()
 
 
+def output_comment(comment, comment_type=None):
+    if comment_type is None:
+        output_text = "# %s" % comment
+    else:
+        output_text = "# %s %s" % (comment_type, comment)
+    Text(output_text).execute()
+
+
 class PythonUtilities(MappingRule):
     mapping = {
         # control flow
@@ -186,6 +194,7 @@ class PythonUtilities(MappingRule):
         "string from [<name>]": Function(output_wrapped_optional_name, around="str"),
         "length of [<name>]": Function(output_wrapped_optional_name, around="len"),
         "pass": Text("pass"),
+        "[<comment_type>] comment [<comment>]": Function(output_comment),
     }
 
     extras = [
@@ -195,6 +204,8 @@ class PythonUtilities(MappingRule):
         Dictation("import_name", default=""),
         Dictation("name", default=""),
         comparison_choice("comparison"),
+        comment_choice("comment_type"),
+        Dictation("comment", default="")
     ]
 
 

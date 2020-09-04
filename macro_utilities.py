@@ -11,3 +11,15 @@ def replace_percentage(sleep):
 
 def replace_in_text(text, character="$", sleep=15):
     return Text(text) + sleep_exit(sleep) + Text("F%ss" % character)
+
+
+comment_choice_map = {
+    "to do": "@TODO: ",
+    "worn": "@WARN: ",
+    "research": "@RESEARCH: ",
+    "note": "@NOTE: ",
+}
+
+
+def comment_choice(name="comment_type"):
+    return Choice(name, comment_choice_map)
