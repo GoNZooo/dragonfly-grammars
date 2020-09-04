@@ -140,10 +140,10 @@ def output_if_not_equal(name):
 
 def output_else_if_equal(name):
     if name == "":
-        command = replace_in_text("elif $ != _:")
+        command = replace_in_text("elif $ == _:")
     else:
         name = format_name(name)
-        command = replace_in_text("elif %s != $:" % name)
+        command = replace_in_text("elif %s == $:" % name)
     command.execute()
 
 
