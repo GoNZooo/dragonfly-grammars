@@ -1,4 +1,4 @@
-from dragonfly import (Key, Text)
+from dragonfly import (Key, Text, Choice)
 
 
 def sleep_exit(sleep):

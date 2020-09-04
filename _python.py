@@ -43,7 +43,7 @@ def output_if_comparison(name, comparison=None, construct="if"):
             command = replace_in_text("%s $ %s:" % (construct, comparison))
         else:
             name = format_name(name)
-            command = Text("%s %s %s:" % (construct, name, comparison))
+            command = Text("%s %s %s " % (construct, name, comparison))
         command.execute()
 
 
