@@ -57,24 +57,28 @@ def output_constant(value_name, type_name):
     output_value("const", value_name, type_name)
 
 
-def output_variable(value_name, type_name):
+def output_variable(value_name, type_name, is_undefined=False):
     if type_name != "":
         value_type_components = str(type_name).split(" ")
         if len(value_type_components) != 1:
             type_name = proper(str(type_name))
     else:
         type_name = "_"
-    output_value("var", value_name, type_name)
+    output_value("var", value_name, type_name, is_undefined=is_undefined)
 
 
-def output_value(definition_type, value_name, type_name):
+def output_value(definition_type, value_name, type_name, is_undefined=False):
+    value_placeholder = "$"
+    if is_undefined:
+        value_placeholder = "undefined"
+
     if value_name == "":
-        command = replace_in_text("%s $ = _;" % definition_type)
+        command = replace_in_text("%s $ = %s;" % (definition_type, value_placeholder))
     else:
         value_name = format_value_name(value_name)
         if type_name != "":
             value_name += ": %s" % type_name
-        command = replace_in_text("%s %s = $;" % (definition_type, value_name))
+        command = Text("%s %s = %s;" % (definition_type, value_name, value_placeholder))
     command.execute()
 
 
@@ -454,6 +458,8 @@ class ZigUtilities(MappingRule):
         # value and function definitions
         "constant [<value_name>] [of type <type_name>]": Function(output_constant),
         "variable [<value_name>] [of type <type_name>]": Function(output_variable),
+        "variable [<value_name>] [of type <type_name>] is undefined": Function(output_variable,
+                                                                               is_undefined=True),
         "test [<test_name>]": Function(output_test),
         "[<function_attribute>] function [<function_name>] [returning <type_name>]":
             Function(output_function),
