@@ -1,6 +1,8 @@
 from vim.rules.letter import (snake_case, proper, camel_case)
-from macro_utilities import (replace_in_text)
-from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function)
+from macro_utilities import (replace_in_text, comment_choice)
+from dragonfly import (Grammar, CompoundRule, Text, MappingRule,
+                       Dictation, Function, Choice, IntegerRef)
+from textwrap import (wrap)
 
 
 def insert_function():
@@ -25,6 +27,20 @@ class ZigDisabler(CompoundRule):
         print "Zig grammar disabled"
 
 
+comparison_choice_map = {
+    "equal": "==",
+    "not equal": "!=",
+    "less or equal": "<=",
+    "greater or equal": ">=",
+    "less": "<",
+    "greater": ">",
+}
+
+
+def comparison_choice(name="comparison"):
+    return Choice(name, comparison_choice_map)
+
+
 def output_test(test_name):
     if test_name == "":
         command = replace_in_text("test \"$\" {}")
@@ -33,42 +49,41 @@ def output_test(test_name):
     command.execute()
 
 
-def output_constant(value_name):
-    output_value("const", value_name)
+def output_constant(value_name, type_name):
+    if type_name != "":
+        value_type_components = str(type_name).split(" ")
+        if len(value_type_components) != 1:
+            type_name = proper(str(type_name))
+    output_value("const", value_name, type_name)
 
 
-def output_variable(value_name):
-    output_value("var", value_name)
-
-
-def output_value(value_type, value_name):
-    if value_name == "":
-        command = replace_in_text("%s $ = _;" % value_type)
+def output_variable(value_name, type_name):
+    if type_name != "":
+        value_type_components = str(type_name).split(" ")
+        if len(value_type_components) != 1:
+            type_name = proper(str(type_name))
     else:
-        # `value_name` is a dictation object
-        value_name = snake_case(str(value_name))
-        command = replace_in_text("%s %s = $;" % (value_type, value_name))
+        type_name = "_"
+    output_value("var", value_name, type_name)
+
+
+def output_value(definition_type, value_name, type_name):
+    if value_name == "":
+        command = replace_in_text("%s $ = _;" % definition_type)
+    else:
+        value_name = format_value_name(value_name)
+        if type_name != "":
+            value_name += ": %s" % type_name
+        command = replace_in_text("%s %s = $;" % (definition_type, value_name))
     command.execute()
 
 
-def output_struct(type_name):
-    output_type("struct", type_name)
-
-
-def output_union(type_name):
-    output_type("union(enum)", type_name)
-
-
-def output_enumeration(type_name):
-    output_type("enum", type_name)
-
-
-def output_type(prelude, type_name):
+def output_type_definition(type_name, definition_type):
     if type_name == "":
-        command = Text("%s {}" % prelude)
+        command = Text("%s {}" % definition_type)
     else:
         type_name = proper(str(type_name))
-        command = replace_in_text("const %s = %s {$};" % (type_name, prelude))
+        command = replace_in_text("const %s = %s {$};" % (type_name, definition_type))
     command.execute()
 
 
@@ -76,26 +91,30 @@ def output_for_loop(value_name):
     if value_name == "":
         command = replace_in_text("for ($) |_| {}")
     else:
-        value_name = snake_case(str(value_name))
+        value_name = format_value_name(value_name)
         command = replace_in_text("for (%s) |$| {}" % value_name)
     command.execute()
 
 
-def output_while_loop(value_name):
+def output_while_loop(value_name, binding_name=None):
+    maybe_unpack = ""
+    if binding_name is not None:
+        maybe_unpack = "|%s| " % format_value_name(binding_name)
+
     if value_name == "":
-        command = replace_in_text("while ($) _ {}")
+        command = replace_in_text("while ($) %s{}" % (maybe_unpack))
     else:
-        value_name = snake_case(str(value_name))
-        command = replace_in_text("while (%s.next()) |$| {}" % value_name)
+        value_name = format_value_name(value_name)
+        command = Text("while (%s) %s{}" % (value_name, maybe_unpack))
     command.execute()
 
 
-def output_if(value_name):
+def output_if(value_name, construct):
     if value_name == "":
-        command = replace_in_text("if ($) {} _")
+        command = replace_in_text("%s ($) {}" % construct)
     else:
-        value_name = snake_case(str(value_name))
-        command = replace_in_text("if (%s) $ {} _" % value_name)
+        value_name = format_value_name(value_name)
+        command = Text("%s (%s) {}" % (construct, value_name))
     command.execute()
 
 
@@ -103,48 +122,378 @@ def output_switch(value_name):
     if value_name == "":
         command = replace_in_text("switch ($) {}")
     else:
-        value_name = snake_case(str(value_name))
-        command = replace_in_text("switch (%s) {$}" % value_name)
+        value_name = format_value_name(value_name)
+        command = Text("switch (%s) {}" % value_name)
     command.execute()
 
 
-def output_function(function_name):
-    if function_name == "":
-        command = replace_in_text("fn $(_) _ {}")
+def output_function(function_name, type_name, function_attribute=None):
+    attribute_string = ""
+    if function_attribute is not None:
+        attribute_string = function_attribute + " "
+
+    if type_name != "":
+        type_name_components = str(type_name).split(" ")
+        if len(type_name_components) != 1:
+            type_name = proper(str(type_name))
     else:
-        function_name = camel_case(str(function_name))
-        command = replace_in_text("fn %s($) _ {}" % function_name)
+        type_name = "_"
+    if function_name == "":
+        command = replace_in_text("%sfn $(_) %s {}" % (attribute_string, type_name))
+    else:
+        function_name = format_function_name(function_name)
+        command = replace_in_text("%sfn %s($) %s {}" % (attribute_string, function_name, type_name))
+    command.execute()
+
+
+def output_if_comparison(value_name, construct, comparison=None):
+    if comparison is not None:
+        if value_name == "":
+            command = replace_in_text("%s ($ %s _) {}" % (construct, comparison))
+        else:
+            value_name = snake_case(str(value_name))
+            command = replace_in_text("%s (%s %s $) {}" % (construct, value_name, comparison))
+        command.execute()
+
+
+def output_unpack_if(value_name, binding_name=None):
+    if binding_name is not None:
+        binding_name = "|%s|" % format_value_name(binding_name)
+    else:
+        if value_name == "":
+            binding_name = "|_|"
+        else:
+            binding_name = "|$|"
+
+    if value_name == "":
+        command = replace_in_text("if ($) %s {}" % binding_name)
+    else:
+        value_name = format_value_name(value_name)
+        command = Text("if (%s) %s {}" % (value_name, binding_name))
+    command.execute()
+
+
+def format_value_name(name):
+    return snake_case(str(name).replace("-", "_"))
+
+
+def output_comment(comment, comment_type=None):
+    if comment_type is None:
+        output_text = "// %s" % comment
+    else:
+        output_text = "// %s %s" % (comment_type, comment)
+    Text(output_text).execute()
+
+
+def output_comparison(value_name, comparison=None):
+    if comparison is not None:
+        if value_name == "":
+            command = replace_in_text("$ %s _" % comparison)
+        else:
+            value_name = format_value_name(value_name)
+            command = Text("%s %s " % (value_name, comparison))
+        command.execute()
+
+
+def output_binding(value_name, is_pointer=False):
+    pointer_suffix = ""
+    if is_pointer:
+        pointer_suffix = ".*"
+
+    if value_name == "":
+        command = replace_in_text("$%s = " % pointer_suffix)
+    else:
+        value_name = format_value_name(value_name)
+        command = Text("%s%s = " % (value_name, pointer_suffix))
+    command.execute()
+
+
+function_attribute_map = {
+    "external": "extern",
+    "public": "pub",
+}
+
+
+def format_function_name(function_name):
+    return camel_case(str(function_name).replace("-", ""))
+
+
+def function_attribute_choice(name="function_attribute"):
+    return Choice(name, function_attribute_map)
+
+
+class CastingSpec:
+    def __init__(self, casting_type, size, prefix):
+        self.casting_type = casting_type
+        self.size = size
+        self.prefix = prefix
+
+    def get_cast_expression(self, value):
+        type_to_cast_into = self.prefix + str(self.size)
+
+        return "%s(%s, %s)" % (self.casting_type, value, type_to_cast_into)
+
+    def get_safe_cast_expression(self, value):
+        type_to_cast_into = self.prefix + str(self.size)
+
+        return "@as(%s, %s)" % (value, type_to_cast_into)
+
+
+class CastingFloat(CastingSpec):
+    def __init__(self, size):
+        CastingSpec.__init__(self, "@floatCast", size, "f")
+
+
+class CastingSigned(CastingSpec):
+    def __init__(self, size):
+        CastingSpec.__init__(self, "@intCast", size, "i")
+
+
+class CastingUnsigned(CastingSpec):
+    def __init__(self, size):
+        CastingSpec.__init__(self, "@intCast", size, "u")
+
+
+typecast_choice_map = {
+    "you sixty four": CastingUnsigned(64),
+    "you thirty two": CastingUnsigned(32),
+    "you eight": CastingUnsigned(8),
+    "you one twenty eight": CastingUnsigned(128),
+    "unsigned sixty four": CastingUnsigned(64),
+    "unsigned thirty two": CastingUnsigned(32),
+    "unsigned eight": CastingUnsigned(8),
+    "unsigned one twenty eight": CastingUnsigned(128),
+    "character": CastingUnsigned(8),
+    "char": CastingUnsigned(8),
+    "i sixty four": CastingSigned(64),
+    "i thirty two": CastingSigned(32),
+    "i eight": CastingSigned(8),
+    "i one twenty eight": CastingSigned(128),
+    "signed sixty four": CastingSigned(64),
+    "signed thirty two": CastingSigned(32),
+    "signed eight": CastingSigned(8),
+    "signed one twenty eight": CastingSigned(128),
+    "float thirty two": CastingFloat(32),
+    "float sixty four": CastingFloat(64),
+    "float one twenty eight": CastingFloat(128),
+}
+
+
+def typecast_choice(name="type_choice"):
+    return Choice(name, typecast_choice_map)
+
+
+def output_typecast(value_name, type_choice=None, is_safe=True):
+    if type_choice is None:
+        if value_name == "":
+            command = replace_in_text("@as($, _)")
+        else:
+            value_name = format_value_name(value_name)
+            command = replace_in_text("@as(%s, $)" % value_name)
+    else:
+        if value_name == "":
+            if is_safe:
+                output_string = type_choice.get_safe_cast_expression("$")
+            else:
+                output_string = type_choice.get_cast_expression("$")
+            command = replace_in_text(output_string)
+        else:
+            value_name = format_value_name(value_name)
+            if is_safe:
+                output_string = type_choice.get_safe_cast_expression(value_name)
+            else:
+                output_string = type_choice.get_cast_expression(value_name)
+            command = Text(output_string)
+
+    command.execute()
+
+
+calling_convention_choice_map = {
+    "see": ".C",
+    "standard": ".Stdcall",
+    "naked": ".Naked",
+    "asynchronous": ".Async",
+}
+
+
+def calling_convention_choice(name="calling_convention"):
+    return Choice(name, calling_convention_choice_map)
+
+
+def output_calling_convention(calling_convention=None):
+    if calling_convention is None:
+        command = replace_in_text("callconv($)")
+    else:
+        command = Text("callconv(%s)" % calling_convention)
+    command.execute()
+
+
+library_choice_map = {
+    "memory": "mem",
+    "standard memory": "std.mem",
+    "dynamic memory": "heap",
+    "standard dynamic memory": "std.heap",
+    "file system": "fs",
+    "standard file system": "std.fs",
+    "standard": "std",
+}
+
+
+def library_choice(name="library"):
+    return Choice(name, library_choice_map)
+
+
+def output_library(library=None):
+    if library is not None:
+        Text(library).execute()
+
+
+def format_index(index):
+    index_string = list(str(index))
+    index_string.reverse()
+    chunks = wrap("".join(index_string), 3)
+    chunks.reverse()
+    reversed_chunks = []
+    for c in chunks:
+        chunk_list = list(c)
+        chunk_list.reverse()
+        reversed_chunks.append("".join(chunk_list))
+    result = "_".join(reversed_chunks)
+
+    return result
+
+
+def output_index(value_name, start=None, end=None, rest=False):
+    value_name = format_value_name(value_name)
+    if start is None and end is None:
+        command = replace_in_text("%s[$]" % value_name)
+    elif start is None:
+        formatted_end = format_index(end)
+        command = Text("%s[0..%s]" % (value_name, formatted_end))
+    elif end is None:
+        if rest:
+            formatted_start = format_index(start)
+            command = Text("%s[%s..]" % (value_name, formatted_start))
+        else:
+            formatted_start = format_index(start)
+            command = Text("%s[%s]" % (value_name, formatted_start))
+    else:
+        formatted_start = format_index(start)
+        formatted_end = format_index(end)
+        command = Text("%s[%s..%s]" % (value_name, formatted_start, formatted_end))
+
+    command.execute()
+
+
+def output_method_call(function_name, value_name, with_try=False):
+    function_name = format_function_name(function_name)
+    value_name = format_value_name(value_name)
+    command_text = ""
+    if with_try:
+        command_text = "try "
+
+    if function_name == "" and value_name == "":
+        command_text += "$._()"
+        command = replace_in_text(command_text)
+    elif function_name == "":
+        command_text += "%s." % value_name
+        command = Text(command_text)
+    elif value_name == "":
+        command_text += "$.%s()" % function_name
+        command = replace_in_text(command_text)
+    else:
+        command_text += "%s.%s()" % (value_name, function_name)
+        command = Text(command_text)
+
+    command.execute()
+
+
+def output_function_call(function_name, value_name, with_try=False):
+    function_name = format_function_name(function_name)
+    value_name = format_value_name(value_name)
+    command_text = ""
+    if with_try:
+        command_text = "try "
+
+    if function_name == "" and value_name == "":
+        command_text += "$(_)"
+        command = replace_in_text(command_text)
+    elif function_name == "":
+        command_text += "$(%s)" % value_name
+        command = replace_in_text(command_text)
+    elif value_name == "":
+        command_text += "%s($)" % function_name
+        command = replace_in_text(command_text)
+    else:
+        command_text += "%s(%s)" % (function_name, value_name)
+        command = Text(command_text)
+
     command.execute()
 
 
 class ZigUtilities(MappingRule):
     mapping = {
-        "if [<value_name>]": Function(output_if),
+        # control flow
+        "if [<value_name>]": Function(output_if, construct="if"),
+        "if [<value_name>] is <comparison>": Function(output_if_comparison, construct="if"),
+        "unpack [<value_name>] [into <binding_name>]": Function(output_unpack_if),
+
+        "else if [<value_name>]": Function(output_if, construct="else if"),
+        "else if [<value_name>] is <comparison>": Function(output_if_comparison,
+                                                           construct="else if"),
+
         "for loop [over <value_name>]": Function(output_for_loop),
-        "while loop [over <value_name>]": Function(output_while_loop),
+        "while [<value_name>]": Function(output_while_loop, binding_name=None),
+        "binding [<binding_name>] while [<value_name>] ": Function(output_while_loop,
+                                                                   binding_name="_"),
         "switch [on <value_name>]": Function(output_switch),
 
-        "constant [<value_name>]": Function(output_constant),
-        "variable [<value_name>]": Function(output_variable),
+        # logic checks
+        "check [<value_name>] is <comparison>": Function(output_comparison),
+
+        # value and function definitions
+        "constant [<value_name>] [of type <type_name>]": Function(output_constant),
+        "variable [<value_name>] [of type <type_name>]": Function(output_variable),
         "test [<test_name>]": Function(output_test),
+        "[<function_attribute>] function [<function_name>] [returning <type_name>]":
+            Function(output_function),
+        "(call|calling) convention [<calling_convention>]": Function(output_calling_convention),
+
+        # type definitions
+        "struct [<type_name>]": Function(output_type_definition, definition_type="struct"),
+        "union [<type_name>]": Function(output_type_definition, definition_type="union(enum)"),
+        "enumeration [<type_name>]": Function(output_type_definition, definition_type="enum"),
+
+        # assignment
+        "[<value_name>] equals": Function(output_binding),
+        "pointer [<value_name>] equals": Function(output_binding, is_pointer=True),
+
+        # type casts / conversions
+        "cast [<value_name>] [into <type_choice>]": Function(output_typecast, is_safe=False),
+        "[<value_name>] as [<type_choice>]": Function(output_typecast),
+
+        # other conveniences
+        "method [<function_name>] [on <value_name>]": Function(output_method_call),
+        "call [<function_name>] [on <value_name>]": Function(output_function_call),
+        "try method [<function_name>] [on <value_name>]": Function(output_method_call,
+                                                                   with_try=True),
+        "try call [<function_name>] [on <value_name>]": Function(output_function_call,
+                                                                 with_try=True),
+        "import": replace_in_text("const $ = @import(\"_\");"),
+        "[<comment_type>] comment [<comment>]": Function(output_comment),
+        "library <library>": Function(output_library),
+        "index [<start>] [to <end>]": Function(output_index),
+        "index [<start>] onwards": Function(output_index, rest=True),
+        "indexing [<start>] [to <end>] into <value_name>": Function(output_index),
+        "indexing [<start>] onwards into <value_name>": Function(output_index, rest=True),
+        "compile time": Text("comptime "),
         "public": Text("pub "),
         "external": Text("extern "),
-        "function [<function_name>]": Function(output_function),
         "a sink": Text("async "),
         "await": Text("await "),
         "try": Text("try "),
         "catch": Text("catch "),
         "defer": Text("defer "),
-        "import": replace_in_text("const $ = @import(\"_\");"),
-        "compile time": Text("comptime "),
-
-        "struct [<type_name>]": Function(output_struct),
-        "union [<type_name>]": Function(output_union),
-        "enumeration [<type_name>]": Function(output_enumeration),
-
-        "check equal": Text(" == "),
-        "check not equal": Text(" != "),
-        "equals": Text(" = "),
         "arrow": Text(" => "),
         "pointer": Text("ptr"),
     }
@@ -153,7 +502,17 @@ class ZigUtilities(MappingRule):
         Dictation("test_name", default=""),
         Dictation("value_name", default=""),
         Dictation("type_name", default=""),
-        Dictation("function_name", default="")
+        Dictation("function_name", default=""),
+        Dictation("binding_name", default=None),
+        Dictation("comment", default=""),
+        comment_choice("comment_type"),
+        comparison_choice("comparison"),
+        function_attribute_choice("function_attribute"),
+        typecast_choice("type_choice"),
+        calling_convention_choice("calling_convention"),
+        library_choice("library"),
+        IntegerRef("start", 0, 10000000),
+        IntegerRef("end", 0, 10000000),
     ]
 
 
