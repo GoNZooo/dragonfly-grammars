@@ -14,10 +14,10 @@ def replace_in_text(text, character="$", sleep=15):
 
 
 comment_choice_map = {
-    "to do": "@TODO: ",
-    "worn": "@WARN: ",
-    "research": "@RESEARCH: ",
-    "note": "@NOTE: ",
+    "to do": "@TODO:",
+    "worn": "@WARN:",
+    "research": "@RESEARCH:",
+    "note": "@NOTE:",
 }
 
 
