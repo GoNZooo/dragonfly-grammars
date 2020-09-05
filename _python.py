@@ -160,6 +160,38 @@ def output_comment(comment, comment_type=None):
     Text(output_text).execute()
 
 
+def output_method_call(method_name, name):
+    method_name = format_name(method_name)
+    name = format_name(name)
+
+    if method_name == "" and name == "":
+        command = replace_in_text("$._()")
+    elif method_name == "":
+        command = replace_in_text("%s.$()" % name)
+    elif name == "":
+        command = replace_in_text("$.%s()" % method_name)
+    else:
+        command = Text("%s.%s()" % (name, method_name))
+
+    command.execute()
+
+
+def output_function_call(function_name, name):
+    function_name = format_name(function_name)
+    name = format_name(name)
+
+    if function_name == "" and name == "":
+        command = replace_in_text("_($)")
+    elif function_name == "":
+        command = replace_in_text("$(%s)" % name)
+    elif name == "":
+        command = replace_in_text("%s($)" % function_name)
+    else:
+        command = Text("%s(%s)" % (function_name, name))
+
+    command.execute()
+
+
 class PythonUtilities(MappingRule):
     mapping = {
         # control flow
@@ -191,6 +223,8 @@ class PythonUtilities(MappingRule):
         "import dragonfly": Text("import dragonfly as dragonfly"),
 
         # other convenience
+        "method [<method_name>] on [<name>]": Function(output_method_call),
+        "call [<function_name>] on [<name>]": Function(output_function_call),
         "string from [<name>]": Function(output_wrapped_optional_name, around="str"),
         "length of [<name>]": Function(output_wrapped_optional_name, around="len"),
         "pass": Text("pass"),
@@ -203,6 +237,7 @@ class PythonUtilities(MappingRule):
         Dictation("superclass", default=""),
         Dictation("import_name", default=""),
         Dictation("name", default=""),
+        Dictation("method_name", default=""),
         comparison_choice("comparison"),
         comment_choice("comment_type"),
         Dictation("comment", default="")
