@@ -60,33 +60,29 @@ def say_text(dictation):
     return Text(expanded_words).execute()
 
 
-def format_text(dictation, format_type=None):
-    expanded_words = str(dictation).replace(".", " period").lstrip().lower()
+def format_dictation(dictation, format_type=None):
+    expanded_words = str(dictation).replace(".", " period").replace("/", "").lstrip().lower()
 
     if format_type == "snake":
-        response = snake_case(expanded_words)
-        return Text(response).execute()
+        return snake_case(expanded_words)
     elif format_type == "camel":
-        response = camel_case(expanded_words)
-        return Text(response).execute()
+        return camel_case(expanded_words)
     elif format_type == "proper":
-        response = proper(expanded_words)
-        return Text(response).execute()
+        return proper(expanded_words)
     elif format_type == "together":
-        response = together(expanded_words)
-        return Text(response).execute()
+        return together(expanded_words)
     elif format_type == "lowercase":
-        response = lowercase(expanded_words)
-        return Text(response).execute()
+        return lowercase(expanded_words)
     elif format_type == "uppercase":
-        response = uppercase(expanded_words)
-        return Text(response).execute()
+        return uppercase(expanded_words)
     elif format_type == "barbecue":
-        response = barbecue(expanded_words)
-        return Text(response).execute()
+        return barbecue(expanded_words)
     elif format_type == "Ada":
-        response = ada(expanded_words)
-        return Text(response).execute()
+        return ada(expanded_words)
+
+
+def format_text(dictation, format_type=None):
+    return Text(format_dictation(dictation, format_type)).execute()
 
 
 class LetterRule(MappingRule):
