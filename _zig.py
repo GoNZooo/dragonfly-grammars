@@ -78,7 +78,12 @@ def output_value(definition_type, value_name, type_name, is_undefined=False):
         value_name = format_value_name(value_name)
         if type_name != "":
             value_name += ": %s" % type_name
-        command = Text("%s %s = %s;" % (definition_type, value_name, value_placeholder))
+        if is_undefined:
+            command_constructor = Text
+        else:
+            command_constructor = replace_in_text
+        command = command_constructor("%s %s = %s;" %
+                                      (definition_type, value_name, value_placeholder))
     command.execute()
 
 
@@ -91,12 +96,20 @@ def output_type_definition(type_name, definition_type):
     command.execute()
 
 
-def output_for_loop(value_name):
+def output_for_loop(value_name, binding_name=None):
     if value_name == "":
-        command = replace_in_text("for ($) |_| {}")
+        if binding_name is not None:
+            binding = format_value_name(binding_name)
+        else:
+            binding = "_"
+        command = replace_in_text("for ($) |%s| {}" % binding)
     else:
         value_name = format_value_name(value_name)
-        command = replace_in_text("for (%s) |$| {}" % value_name)
+        if binding_name is not None:
+            binding = format_value_name(binding_name)
+            command = Text("for (%s) |%s| {}" % (value_name, binding))
+        else:
+            command = replace_in_text("for (%s) |$| {}" % value_name)
     command.execute()
 
 
@@ -446,7 +459,7 @@ class ZigUtilities(MappingRule):
         "else if [<value_name>] is <comparison>": Function(output_if_comparison,
                                                            construct="else if"),
 
-        "for loop [over <value_name>]": Function(output_for_loop),
+        "for loop [over <value_name>] [binding <binding_name>]": Function(output_for_loop),
         "while [<value_name>]": Function(output_while_loop, binding_name=None),
         "binding [<binding_name>] while [<value_name>] ": Function(output_while_loop,
                                                                    binding_name="_"),
