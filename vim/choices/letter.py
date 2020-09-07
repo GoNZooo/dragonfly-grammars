@@ -86,8 +86,8 @@ def letter_choice(name="letter"):
         'bang': 'exclamation',
 
         # quotes
-        'dub': 'dquote',
-        'sing': 'squote',
+        '(double|dub)': 'dquote',
+        '(single|sing)': 'squote',
 
         'score': 'underscore',
         'quest': 'question',
