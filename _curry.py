@@ -1,5 +1,6 @@
-from dragonfly import (Grammar, CompoundRule, Text, MappingRule)
-from macro_utilities import (replace_percentage)
+from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function)
+from macro_utilities import (replace_in_text)
+from vim.rules.letter import (camel_case, proper)
 
 
 class CurryEnabler(CompoundRule):
@@ -20,24 +21,201 @@ class CurryDisabler(CompoundRule):
         print "Curry grammar disabled"
 
 
+def dictation_to_identifier(dictation):
+    return camel_case(str(dictation).lower())
+
+
+def output_bind(name):
+    if name == "":
+        command = replace_in_text("$ <- _")
+    else:
+        name = dictation_to_identifier(name)
+        command = replace_in_text("%s <- $" % name)
+    command.execute()
+
+
+def output_let(name):
+    if name == "":
+        command = replace_in_text("let $ = _")
+    else:
+        name = dictation_to_identifier(name)
+        command = replace_in_text("let %s = $" % name)
+    command.execute()
+
+
+def output_case(name):
+    if name == "":
+        command = replace_in_text("case $ of")
+    else:
+        name = dictation_to_identifier(name)
+        command = replace_in_text("case %s$ of" % name)
+    command.execute()
+
+
+def output_if(name):
+    if name == "":
+        command = replace_in_text("if $ then _ else _")
+    else:
+        name = dictation_to_identifier(name)
+        command = replace_in_text("if %s then $ else _" % name)
+    command.execute()
+
+
+def output_type_signature(name):
+    if name == "":
+        command = replace_in_text("$ :: _")
+    else:
+        name = dictation_to_identifier(name)
+        command = replace_in_text("%s :: $" % name)
+    command.execute()
+
+
+def format_module_name(module_name):
+    module_name = str(module_name)
+    components = module_name.split(".")
+    formatted_components = []
+    for component in components:
+        formatted_components.append(proper(component))
+
+    return ".".join(formatted_components)
+
+
+def output_import(import_name):
+    if import_name == "":
+        command = replace_in_text("import $ (_)")
+    else:
+        import_name = format_module_name(import_name)
+        command = replace_in_text("import %s ($)" % import_name)
+    command.execute()
+
+
+def output_import_qualified(import_name):
+    if import_name == "":
+        command = replace_in_text("import qualified $ as _")
+    else:
+        import_name = format_module_name(import_name)
+        command = replace_in_text("import qualified %s as $" % import_name)
+    command.execute()
+
+
+def output_import_as(import_name):
+    if import_name == "":
+        command = replace_in_text("import $ as _")
+    else:
+        import_name = format_module_name(import_name)
+        command = replace_in_text("import %s as $" % import_name)
+    command.execute()
+
+
+def output_binding(name):
+    if name == "":
+        command = replace_in_text("$ = _")
+    else:
+        name = dictation_to_identifier(name)
+        command = replace_in_text("%s = $" % name)
+    command.execute()
+
+
+def output_if_equal(name):
+    output_if_comparison("==", name)
+
+
+def output_if_not_equal(name):
+    output_if_comparison("/=", name)
+
+
+def output_if_comparison(comparison, name):
+    if name == "":
+        command = replace_in_text("if $ %s _ then _ else _" % comparison)
+    else:
+        name = dictation_to_identifier(name)
+        command = replace_in_text("if %s %s $ then _ else _" % (name, comparison))
+    command.execute()
+
+
+def output_check_equal(name):
+    output_check_comparison("==", name)
+
+
+def output_check_not_equal(name):
+    output_check_comparison("/=", name)
+
+
+def output_check_comparison(comparison, name):
+    if name == "":
+        command = replace_in_text("$ %s _" % comparison)
+    else:
+        name = dictation_to_identifier(name)
+        command = replace_in_text("%s %s $" % (name, comparison))
+    command.execute()
+
+
+def output_data_type(type_name):
+    if type_name == "":
+        command = replace_in_text("data $ =")
+    else:
+        type_name = dictation_to_type_name(type_name)
+        command = Text("data %s = " % type_name)
+    command.execute()
+
+
+def dictation_to_type_name(name):
+    return proper(str(name).replace("-", ""))
+
+
+def output_new_type(type_name, new_type_base):
+    if type_name == "" and new_type_base == "":
+        command = replace_in_text("newtype $ = _")
+    elif type_name == "":
+        new_type_base = dictation_to_type_name(new_type_base)
+        command = replace_in_text("newtype $ = _ %s" % new_type_base)
+    elif new_type_base == "":
+        type_name = dictation_to_type_name(type_name)
+        command = Text("newtype %s = %s " % (type_name, type_name))
+    else:
+        type_name = dictation_to_type_name(type_name)
+        new_type_base = dictation_to_type_name(new_type_base)
+        command = Text("newtype %s = %s %s" % (type_name, type_name, new_type_base))
+    command.execute()
+
+
+def output_wrapped_type(type_name, new_type_base):
+    if type_name == "" and new_type_base == "":
+        command = replace_in_text("type $ = Wrapped \"_\" _")
+    elif type_name == "":
+        new_type_base = dictation_to_type_name(new_type_base)
+        command = replace_in_text("type $ = Wrapped \"_\" %s" % new_type_base)
+    elif new_type_base == "":
+        type_name = dictation_to_type_name(type_name)
+        command = Text("type %s = Wrapped \"%s\" " % (type_name, type_name))
+    else:
+        type_name = dictation_to_type_name(type_name)
+        new_type_base = dictation_to_type_name(new_type_base)
+        command = Text("type %s = Wrapped \"%s\" %s" % (type_name, type_name, new_type_base))
+    command.execute()
+
+
 class CurryUtilities(MappingRule):
     mapping = {
-        "if": Text("if %% then _ else _") + replace_percentage(15),
-        "case": Text("case %% of") + replace_percentage(15),
-        "let": Text("let %% = _ in") + replace_percentage(15),
-        "anonymous function": Text("\\%% -> _") + replace_percentage(15),
-        "type signature": Text("%% :: _") + replace_percentage(15),
-        "import": Text("import %% (_)") + replace_percentage(15),
-        "qualified Haskell import": Text("import qualified %% as _") + replace_percentage(15),
-        "qualified pure script import": Text("import %% as _") + replace_percentage(15),
-        "check equal": Text(" == "),
-        "check not equal": Text(" != "),
+        "if [<name>]": Function(output_if),
+        "if [<name>] is equal": Function(output_if_equal),
+        "if [<name>] is not equal": Function(output_if_not_equal),
+        "case [on <name>]": Function(output_case),
+        "let [<name>]": Function(output_let),
+        "anonymous function": replace_in_text("\\$ -> _"),
+        "signature [for <name>]": Function(output_type_signature),
+        "import [<import_name>]": Function(output_import),
+        "import qualified [<import_name>]": Function(output_import_qualified),
+        "import [<import_name>] as": Function(output_import_as),
+        "qualified pure script import": replace_in_text("import $ as _"),
+        "check [<name>] is equal": Function(output_check_equal),
+        "check [<name>] is not equal": Function(output_check_not_equal),
         "map": Text(" <$> "),
         "apply": Text(" <*> "),
-        "bind": Text(" >>= "),
+        "operator bind": Text(" >>= "),
         "discard": Text(" >> "),
-        "equals": Text(" = "),
-        "do bind": Text("%% <- _") + replace_percentage(15),
+        "[<name>] equals": Function(output_binding),
+        "bind [to <name>]": Function(output_bind),
         "backwards arrow": Text(" <- "),
         "backwards fat arrow": Text(" <= "),
         "arrow": Text(" -> "),
@@ -45,11 +223,17 @@ class CurryUtilities(MappingRule):
         "monad reader": Text("MonadReader e m"),
         "monad IO": Text("MonadIO m"),
         "monad state": Text("MonadState s m"),
-        "define data type": Text("data %% =") + replace_percentage(15),
-        "define new type": Text("newtype %% =") + replace_percentage(15),
+        "data type [<type_name>]": Function(output_data_type),
+        "new type [<type_name>] [is <new_type_base>]": Function(output_new_type),
+        "wrapped type [<type_name>] [is <new_type_base>]": Function(output_wrapped_type),
     }
 
-    extras = []
+    extras = [
+        Dictation("name", default=""),
+        Dictation("type_name", default=""),
+        Dictation("new_type_base", default=""),
+        Dictation("import_name", default="")
+    ]
 
 
 # The main Curry grammar rules are activated here
