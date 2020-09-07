@@ -25,6 +25,7 @@ git_command_choice_map = {
     "pull from main": "pull origin main",
     "check out": "checkout ",
     "new branch": "checkout -b ",
+    "status": "status",
 }
 
 
