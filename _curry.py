@@ -112,7 +112,7 @@ def output_binding(name):
         command = replace_in_text("$ = _")
     else:
         name = dictation_to_identifier(name)
-        command = replace_in_text("%s = $" % name)
+        command = Text("%s = " % name)
     command.execute()
 
 
@@ -195,6 +195,10 @@ def output_wrapped_type(type_name, new_type_base):
     command.execute()
 
 
+def output_language_extension(language_extension):
+    Text("{-# LANGUAGE %s #-}" % proper(str(language_extension))).execute()
+
+
 class CurryUtilities(MappingRule):
     mapping = {
         "if [<name>]": Function(output_if),
@@ -226,13 +230,15 @@ class CurryUtilities(MappingRule):
         "data type [<type_name>]": Function(output_data_type),
         "new type [<type_name>] [is <new_type_base>]": Function(output_new_type),
         "wrapped type [<type_name>] [is <new_type_base>]": Function(output_wrapped_type),
+        "language extension <language_extension>": Function(output_language_extension),
     }
 
     extras = [
         Dictation("name", default=""),
         Dictation("type_name", default=""),
         Dictation("new_type_base", default=""),
-        Dictation("import_name", default="")
+        Dictation("import_name", default=""),
+        Dictation("language_extension", default=""),
     ]
 
 
