@@ -195,7 +195,9 @@ def format_value_name(name):
 
 
 def output_comment(comment, comment_type=None):
-    if comment_type is None:
+    if comment_type == "documentation":
+        output_text = "/// %s" % comment
+    elif comment_type is None:
         output_text = "// %s" % comment
     else:
         output_text = "// %s %s" % (comment_type, comment)
@@ -500,6 +502,7 @@ class ZigUtilities(MappingRule):
                                                                  with_try=True),
         "import": replace_in_text("const $ = @import(\"_\");"),
         "[<comment_type>] comment [<comment>]": Function(output_comment),
+        "documentation comment [<comment>]": Function(output_comment, comment_type="documentation"),
         "library <library>": Function(output_library),
         "index [<start>] [to <end>]": Function(output_index),
         "index [<start>] onwards": Function(output_index, rest=True),
