@@ -146,6 +146,7 @@ class TerminalUtilities(MappingRule):
         "<directory_command> directory [<format_type>] [<directory_name>]":
             Function(output_directory_command),
         "zig cash been": Text("zig-cache/bin"),
+        "code here": Text("code ."),
         "been": Text("bin"),
         "source": Text("src"),
     }
