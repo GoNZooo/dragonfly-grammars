@@ -1,5 +1,5 @@
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function)
-from macro_utilities import (replace_in_text)
+from macro_utilities import (replace_in_text, comment_choice)
 from vim.rules.letter import (camel_case, proper)
 
 
@@ -199,6 +199,14 @@ def output_language_extension(language_extension):
     Text("{-# LANGUAGE %s #-}" % proper(str(language_extension))).execute()
 
 
+def output_comment(comment, comment_type=None):
+    if comment_type is None:
+        command = Text("-- %s" % comment)
+    else:
+        command = Text("-- %s %s" % (comment_type, comment))
+    command.execute()
+
+
 class CurryUtilities(MappingRule):
     mapping = {
         "if [<name>]": Function(output_if),
@@ -231,14 +239,17 @@ class CurryUtilities(MappingRule):
         "new type [<type_name>] [is <new_type_base>]": Function(output_new_type),
         "wrapped type [<type_name>] [is <new_type_base>]": Function(output_wrapped_type),
         "language extension <language_extension>": Function(output_language_extension),
+        "[<comment_type>] comment [<comment>]": Function(output_comment),
     }
 
     extras = [
         Dictation("name", default=""),
+        Dictation("comment", default=""),
         Dictation("type_name", default=""),
         Dictation("new_type_base", default=""),
         Dictation("import_name", default=""),
         Dictation("language_extension", default=""),
+        comment_choice("comment_type"),
     ]
 
 
