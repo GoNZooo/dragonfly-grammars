@@ -1,4 +1,5 @@
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function, Choice)
+from dragonfly.windows.clipboard import (Clipboard)
 from vim.rules.letter import (barbecue, formatting_choice, format_dictation)
 
 
@@ -58,6 +59,22 @@ def output_git_push(branch_name, set_up_stream=False):
 
     branch_name = format_branch_name(branch_name)
     Text("git push%s %s" % (upstream_text, branch_name)).execute()
+
+
+def get_clipboard_as_text():
+    clipboard_instance = Clipboard()
+    clipboard_instance.copy_from_system()
+
+    return clipboard_instance.text
+
+
+def output_git_clone(repository_name, from_clipboard=False):
+    if from_clipboard:
+        clipboard_contents = get_clipboard_as_text()
+        command = Text("git clone %s" % clipboard_contents)
+    else:
+        command = Text("git clone ")
+    command.execute()
 
 
 def format_directory_name(directory_name, format_type):
@@ -139,6 +156,8 @@ class TerminalUtilities(MappingRule):
         "get pull [<branch_name>]": Function(output_git_pull),
         "get push upstream [<branch_name>]": Function(output_git_push, set_up_stream=True),
         "get push [<branch_name>]": Function(output_git_push),
+        "get clone from clipboard": Function(output_git_clone, from_clipboard=True),
+        "get clone [<repository_name>]": Function(output_git_clone),
         "zig build [<optimization>] [for <build_target_name>]": Function(output_zig_build,
                                                                          gnu=False),
         "zig build [<optimization>] [for <build_target_name>] with Stallman":
@@ -153,6 +172,7 @@ class TerminalUtilities(MappingRule):
 
     extras = [
         Dictation("branch_name", default=""),
+        Dictation("repository_name", default=""),
         Dictation("directory_name", default=""),
         git_command_choice("git_command"),
         formatting_choice("format_type"),
