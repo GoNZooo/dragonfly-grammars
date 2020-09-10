@@ -43,6 +43,29 @@ def output_git_command(git_command=None):
     command.execute()
 
 
+stack_command_choice_map = {
+    "build fast": "build --fast",
+    "build": "build",
+    "shell": "repl",
+    "shall": "repl",
+    "run": "run",
+    "install": "install",
+}
+
+
+def stack_command_choice(name="stack_command"):
+    return Choice(name, stack_command_choice_map)
+
+
+def output_stack_command(stack_command=None):
+    command_text = "stack "
+    if stack_command is None:
+        command = Text(command_text)
+    else:
+        command = Text(command_text + str(stack_command))
+    command.execute()
+
+
 def output_git_pull(branch_name):
     branch_name = format_branch_name(branch_name)
     Text("git pull %s" % branch_name).execute()
@@ -168,6 +191,7 @@ class TerminalUtilities(MappingRule):
         "code here": Text("code ."),
         "been": Text("bin"),
         "source": Text("src"),
+        "stack [<stack_command>]": Function(output_stack_command),
     }
 
     extras = [
@@ -175,6 +199,7 @@ class TerminalUtilities(MappingRule):
         Dictation("repository_name", default=""),
         Dictation("directory_name", default=""),
         git_command_choice("git_command"),
+        stack_command_choice("stack_command"),
         formatting_choice("format_type"),
         directory_command_choice("directory_command"),
         build_target_name_choice("build_target_name"),
