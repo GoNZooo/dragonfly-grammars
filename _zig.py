@@ -64,9 +64,7 @@ def output_variable(value_name, type_name, is_undefined=False):
 
 
 def output_value(definition_type, value_name, type_name, is_undefined=False):
-    value_placeholder = "$"
-    if is_undefined:
-        value_placeholder = "undefined"
+    value_placeholder = "undefined" if is_undefined else "$"
 
     if value_name == "":
         command = replace_in_text("%s $ = %s;" % (definition_type, value_placeholder))
@@ -93,16 +91,13 @@ def output_type_definition(type_name, definition_type):
 
 
 def output_for_loop(value_name, binding_name=None):
+    binding = format_value_name(binding_name) if binding_name is not None else "_"
+
     if value_name == "":
-        if binding_name is not None:
-            binding = format_value_name(binding_name)
-        else:
-            binding = "_"
         command = replace_in_text("for ($) |%s| {}" % binding)
     else:
         value_name = format_value_name(value_name)
         if binding_name is not None:
-            binding = format_value_name(binding_name)
             command = Text("for (%s) |%s| {}" % (value_name, binding))
         else:
             command = replace_in_text("for (%s) |$| {}" % value_name)
@@ -110,9 +105,7 @@ def output_for_loop(value_name, binding_name=None):
 
 
 def output_while_loop(value_name, binding_name=None):
-    maybe_unpack = ""
-    if binding_name is not None:
-        maybe_unpack = "|%s| " % format_value_name(binding_name)
+    maybe_unpack = "|%s| " % format_value_name(binding_name) if binding_name is not None else ""
 
     if value_name == "":
         command = replace_in_text("while ($) %s{}" % (maybe_unpack))
@@ -141,9 +134,7 @@ def output_switch(value_name):
 
 
 def output_function(function_name, type_name, function_attribute=None):
-    attribute_string = ""
-    if function_attribute is not None:
-        attribute_string = function_attribute + " "
+    attribute_string = function_attribute + " " if function_attribute is not None else ""
 
     if type_name != "":
         type_name_components = str(type_name).split(" ")
@@ -211,9 +202,7 @@ def output_comparison(value_name, comparison=None):
 
 
 def output_binding(value_name, is_pointer=False):
-    pointer_suffix = ""
-    if is_pointer:
-        pointer_suffix = ".*"
+    pointer_suffix = ".*" if is_pointer else ""
 
     if value_name == "":
         command = replace_in_text("$%s = " % pointer_suffix)
@@ -403,9 +392,7 @@ def output_index(value_name, start=None, end=None, rest=False):
 def output_method_call(function_name, value_name, with_try=False):
     function_name = format_function_name(function_name)
     value_name = format_value_name(value_name)
-    command_text = ""
-    if with_try:
-        command_text = "try "
+    command_text = "try " if with_try else ""
 
     if function_name == "" and value_name == "":
         command_text += "$._()"
@@ -426,9 +413,7 @@ def output_method_call(function_name, value_name, with_try=False):
 def output_function_call(function_name, value_name, with_try=False):
     function_name = format_function_name(function_name)
     value_name = format_value_name(value_name)
-    command_text = ""
-    if with_try:
-        command_text = "try "
+    command_text = "try " if with_try else ""
 
     if function_name == "" and value_name == "":
         command_text += "$(_)"
@@ -461,9 +446,7 @@ def build_target_name_choice(name="build_target_name"):
 
 
 def output_zig_build(build_target_name=None, gnu=False, optimization=None):
-    libc_spec = ""
-    if gnu:
-        libc_spec = "-gnu"
+    libc_spec = "-gnu" if gnu else ""
 
     command_output = "zig build"
     if build_target_name is not None:
