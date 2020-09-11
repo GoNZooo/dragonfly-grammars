@@ -5,10 +5,6 @@ from dragonfly import (Grammar, CompoundRule, Text, MappingRule,
 from textwrap import (wrap)
 
 
-def insert_function():
-    return replace_in_text("fn $(_) _ {}")
-
-
 class ZigEnabler(CompoundRule):
     spec = "enable zig"
 
