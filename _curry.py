@@ -1,4 +1,4 @@
-from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function)
+from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function, Choice)
 from macro_utilities import (replace_in_text, comment_choice)
 from vim.rules.letter import (camel_case, proper)
 
@@ -207,6 +207,29 @@ def output_comment(comment, comment_type=None):
     command.execute()
 
 
+stack_command_choice_map = {
+    "build fast": "build --fast",
+    "build": "build",
+    "shell": "repl",
+    "shall": "repl",
+    "run": "run",
+    "install": "install",
+}
+
+
+def stack_command_choice(name="stack_command"):
+    return Choice(name, stack_command_choice_map)
+
+
+def output_stack_command(stack_command=None):
+    command_text = "stack "
+    if stack_command is None:
+        command = Text(command_text)
+    else:
+        command = Text(command_text + str(stack_command))
+    command.execute()
+
+
 class CurryUtilities(MappingRule):
     mapping = {
         "if [<name>]": Function(output_if),
@@ -240,6 +263,9 @@ class CurryUtilities(MappingRule):
         "wrapped type [<type_name>] [is <new_type_base>]": Function(output_wrapped_type),
         "language extension <language_extension>": Function(output_language_extension),
         "[<comment_type>] comment [<comment>]": Function(output_comment),
+
+        # terminal commands
+        "stack [<stack_command>]": Function(output_stack_command),
     }
 
     extras = [
@@ -250,6 +276,7 @@ class CurryUtilities(MappingRule):
         Dictation("import_name", default=""),
         Dictation("language_extension", default=""),
         comment_choice("comment_type"),
+        stack_command_choice("stack_command"),
     ]
 
 

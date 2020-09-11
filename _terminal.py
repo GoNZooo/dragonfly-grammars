@@ -44,29 +44,6 @@ def output_git_command(git_command=None):
     command.execute()
 
 
-stack_command_choice_map = {
-    "build fast": "build --fast",
-    "build": "build",
-    "shell": "repl",
-    "shall": "repl",
-    "run": "run",
-    "install": "install",
-}
-
-
-def stack_command_choice(name="stack_command"):
-    return Choice(name, stack_command_choice_map)
-
-
-def output_stack_command(stack_command=None):
-    command_text = "stack "
-    if stack_command is None:
-        command = Text(command_text)
-    else:
-        command = Text(command_text + str(stack_command))
-    command.execute()
-
-
 def output_git_pull(branch_name):
     branch_name = format_branch_name(branch_name)
     Text("git pull %s" % branch_name).execute()
@@ -128,52 +105,6 @@ def output_directory_command(directory_name, format_type=None, directory_command
         ).execute()
 
 
-build_target_name_choice_map = {
-    "linux": "linux",
-    "windows": "windows",
-    "free BSD": "freebsd",
-    "Mac OS": "macos",
-    "OS x": "macos",
-    "OS ten": "macos",
-}
-
-
-def build_target_name_choice(name="build_target_name"):
-    return Choice(name, build_target_name_choice_map)
-
-
-def output_zig_build(build_target_name=None, gnu=False, optimization=None):
-    libc_spec = ""
-    if gnu:
-        libc_spec = "-gnu"
-
-    command_output = "zig build"
-    if build_target_name is not None:
-        command_output = "zig build -Dtarget=native-%s%s" % (build_target_name, libc_spec)
-    elif gnu:
-        command_output = "zig build -Dtarget=native-native-gnu"
-
-    if optimization is not None:
-        command_output += " %s" % optimization
-
-    Text(command_output).execute()
-
-
-optimization_choice_map = {
-    "release": "-Drelease-fast=true",
-    "fast": "-Drelease-fast=true",
-    "release fast": "-Drelease-fast=true",
-    "safe": "-Drelease-safe=true",
-    "release safe": "-Drelease-safe=true",
-    "small": "-Drelease-small=true",
-    "release small": "-Drelease-small=true",
-}
-
-
-def optimization_choice(name="optimization"):
-    return Choice(name, optimization_choice_map)
-
-
 class TerminalUtilities(MappingRule):
     mapping = {
         "get [<git_command>]": Function(output_git_command),
@@ -182,17 +113,12 @@ class TerminalUtilities(MappingRule):
         "get push [<branch_name>]": Function(output_git_push),
         "get clone from clipboard": Function(output_git_clone, from_clipboard=True),
         "get clone [<repository_name>]": Function(output_git_clone),
-        "zig build [<optimization>] [for <build_target_name>]": Function(output_zig_build,
-                                                                         gnu=False),
-        "zig build [<optimization>] [for <build_target_name>] with Stallman":
-            Function(output_zig_build, gnu=True),
         "<directory_command> directory [<format_type>] [<directory_name>]":
             Function(output_directory_command),
         "zig cash been": Text("zig-cache/bin"),
         "code here": Text("code ."),
         "been": Text("bin"),
         "source": Text("src"),
-        "stack [<stack_command>]": Function(output_stack_command),
     }
 
     extras = [
@@ -200,11 +126,8 @@ class TerminalUtilities(MappingRule):
         Dictation("repository_name", default=""),
         Dictation("directory_name", default=""),
         git_command_choice("git_command"),
-        stack_command_choice("stack_command"),
         formatting_choice("format_type"),
         directory_command_choice("directory_command"),
-        build_target_name_choice("build_target_name"),
-        optimization_choice("optimization"),
     ]
 
 

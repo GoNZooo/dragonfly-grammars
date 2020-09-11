@@ -450,6 +450,52 @@ def output_function_call(function_name, value_name, with_try=False):
     command.execute()
 
 
+build_target_name_choice_map = {
+    "linux": "linux",
+    "windows": "windows",
+    "free BSD": "freebsd",
+    "Mac OS": "macos",
+    "OS x": "macos",
+    "OS ten": "macos",
+}
+
+
+def build_target_name_choice(name="build_target_name"):
+    return Choice(name, build_target_name_choice_map)
+
+
+def output_zig_build(build_target_name=None, gnu=False, optimization=None):
+    libc_spec = ""
+    if gnu:
+        libc_spec = "-gnu"
+
+    command_output = "zig build"
+    if build_target_name is not None:
+        command_output = "zig build -Dtarget=native-%s%s" % (build_target_name, libc_spec)
+    elif gnu:
+        command_output = "zig build -Dtarget=native-native-gnu"
+
+    if optimization is not None:
+        command_output += " %s" % optimization
+
+    Text(command_output).execute()
+
+
+optimization_choice_map = {
+    "release": "-Drelease-fast=true",
+    "fast": "-Drelease-fast=true",
+    "release fast": "-Drelease-fast=true",
+    "safe": "-Drelease-safe=true",
+    "release safe": "-Drelease-safe=true",
+    "small": "-Drelease-small=true",
+    "release small": "-Drelease-small=true",
+}
+
+
+def optimization_choice(name="optimization"):
+    return Choice(name, optimization_choice_map)
+
+
 class ZigUtilities(MappingRule):
     mapping = {
         # control flow
@@ -518,6 +564,12 @@ class ZigUtilities(MappingRule):
         "defer": Text("defer "),
         "arrow": Text(" => "),
         "pointer": Text("ptr"),
+
+        # terminal commands
+        "zig build [<optimization>] [for <build_target_name>]": Function(output_zig_build,
+                                                                         gnu=False),
+        "zig build [<optimization>] [for <build_target_name>] with (freedom|fascism)":
+            Function(output_zig_build, gnu=True),
     }
 
     extras = [
@@ -535,6 +587,8 @@ class ZigUtilities(MappingRule):
         library_choice("library"),
         IntegerRef("start", 0, 10000000),
         IntegerRef("end", 0, 10000000),
+        build_target_name_choice("build_target_name"),
+        optimization_choice("optimization"),
     ]
 
 
