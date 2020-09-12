@@ -1,5 +1,5 @@
 from dragonfly import (Grammar, CompoundRule, Text, Key, MappingRule, Dictation, Function, Choice)
-from macro_utilities import (replace_in_text, comment_choice)
+from macro_utilities import (replace_in_text, comment_choice, execute_with_dictation)
 from vim.rules.letter import (snake_case, proper)
 
 
@@ -39,127 +39,113 @@ def comparison_choice(name="comparison"):
 
 def output_if_comparison(name, comparison=None, construct="if"):
     if comparison is not None:
-        if name == "":
-            command = replace_in_text("%s $ %s:" % (construct, comparison))
-        else:
-            name = format_name(name)
-            command = Text("%s %s %s " % (construct, name, comparison))
-        command.execute()
+        execute_with_dictation(
+            name,
+            on_dictation=lambda v: Text("%s %s %s " % (construct, format_name(v), comparison)),
+            on_other=lambda v: replace_in_text("%s $ %s:" % (construct, comparison))
+        )
 
 
 def output_if_expression_comparison(name, comparison=None):
     if comparison is not None:
-        if name == "":
-            command = replace_in_text("_ if $ %s _ else _" % comparison)
-        else:
-            name = format_name(name)
-            command = replace_in_text("_ if %s %s $ else _" % (name, comparison))
-        command.execute()
+        execute_with_dictation(
+            name,
+            on_dictation=lambda v: replace_in_text(
+                "_ if %s %s $ else _" % (format_name(v), comparison)),
+            on_other=lambda v: replace_in_text("_ if $ %s _ else _" % comparison)
+        )
 
 
 def output_function(function_name):
-    if function_name == "":
-        command = replace_in_text("def $(_):")
-    else:
-        function_name = format_name(function_name)
-        command = replace_in_text("def %s($):" % function_name)
-    command.execute()
+    execute_with_dictation(
+        function_name,
+        on_dictation=lambda v: replace_in_text("def %s($):" % format_name(v)),
+        on_other=lambda v: replace_in_text("def $(_):")
+    )
 
 
 def output_class(class_name, superclass):
     if superclass != "":
-        superclass = "(" + proper(str(superclass)) + ")"
-    if class_name == "":
-        command = replace_in_text("class $%s:" % superclass)
-    else:
-        class_name = proper(str(class_name))
-        command = Text("class %s%s:" % (class_name, superclass)) + Key("enter")
-    command.execute()
+        superclass = "(" + format_class_name(superclass) + ")"
+
+    execute_with_dictation(
+        class_name,
+        on_dictation=lambda v: Text("class %s%s:" % (format_class_name(v), superclass)),
+        on_other=lambda v: replace_in_text("class $%s:" % superclass)
+    )
 
 
 def output_from_import(import_name):
-    if import_name == "":
-        command = replace_in_text("from $ import (_)")
-    else:
-        import_name = format_name(import_name)
-        command = replace_in_text("from %s import ($)" % import_name)
-    command.execute()
+    execute_with_dictation(
+        import_name,
+        on_dictation=lambda v:  replace_in_text("from %s import ($)" % format_name(v)),
+        on_other=lambda v: replace_in_text("from $ import (_)")
+    )
 
 
 def output_qualified_import(import_name):
-    if import_name == "":
-        command = replace_in_text("import $ as _")
-    else:
-        import_name = format_name(import_name)
-        command = replace_in_text("import %s as $" % import_name)
-    command.execute()
+    execute_with_dictation(
+        import_name,
+        on_dictation=lambda v: Text("import %s as " % format_name(v)),
+        on_other=lambda v: replace_in_text("import $ as _"),
+    )
 
 
 def output_if(name, statement_type="if"):
-    if name == "":
-        command = replace_in_text("%s $:" % statement_type)
-    else:
-        name = format_name(name)
-        command = Text("%s %s:" % (statement_type, name))
-    command.execute()
+    execute_with_dictation(
+        name,
+        on_dictation=lambda v: Text("%s %s:" % (statement_type, format_name(name))),
+        on_other=lambda v: replace_in_text("%s $:" % statement_type),
+    )
 
 
 def output_if_expression(name):
-    if name == "":
-        command = replace_in_text("_ if $ else _")
-    else:
-        name = format_name(name)
-        command = replace_in_text("$ if %s else _" % name)
-    command.execute()
+    execute_with_dictation(
+        name,
+        on_dictation=lambda v: replace_in_text("$ if %s else _" % format_name(name)),
+        on_other=lambda v: replace_in_text("_ if $ else _"),
+    )
 
 
 def output_for_loop(name):
-    if name == "":
-        command = replace_in_text("for $ in _:")
-    else:
-        name = format_name(name)
-        command = replace_in_text("for $ in %s:" % name)
-    command.execute()
+    execute_with_dictation(
+        name,
+        on_dictation=lambda v: replace_in_text("for $ in %s:" % format_name(name)),
+        on_other=lambda v: replace_in_text("for $ in _:"),
+    )
 
 
 def output_binding(name):
-    if name == "":
-        command = Text(" = ")
-    else:
-        name = format_name(name)
-        command = Text("%s = " % name)
-    command.execute()
+    execute_with_dictation(
+        name,
+        on_dictation=lambda v: Text("%s = " % format_name(name)),
+        on_other=lambda v: Text(" = ")
+    )
 
 
 def output_wrapped_optional_name(name, around):
-    if name == "":
-        command = replace_in_text("%s($)" % around)
-    else:
-        name = format_name(name)
-        command = Text("%s(%s)" % (around, name))
-    command.execute()
+    execute_with_dictation(
+        name,
+        on_dictation=lambda v: Text("%s(%s)" % (around, format_name(name))),
+        on_other=lambda v: replace_in_text("%s($)" % around)
+    )
 
 
-def output_comparison(name, operator):
-    if name == "":
-        command = Text(" %s " % operator)
-    else:
-        name = format_name(name)
-        command = Text("%s %s " % (name, operator))
-    command.execute()
+def output_comparison(name, comparison=None):
+    if comparison is not None:
+        execute_with_dictation(
+            name,
+            on_dictation=lambda v: Text("%s %s " % (format_name(name), comparison)),
+            on_other=lambda v: Text(" %s " % comparison)
+        )
 
 
 def output_anonymous_function(name):
-    if name == "":
-        command = replace_in_text("lambda $: ")
-    else:
-        name = format_name(name)
-        command = replace_in_text("lambda %s: $" % name)
-    command.execute()
-
-
-def format_name(name):
-    return snake_case(str(name))
+    execute_with_dictation(
+        name,
+        on_dictation=lambda v: replace_in_text("lambda %s: $" % format_name(name)),
+        on_other=lambda v: replace_in_text("lambda $: ")
+    )
 
 
 def output_comment(comment, comment_type=None):
@@ -202,6 +188,14 @@ def output_function_call(function_name, name):
     command.execute()
 
 
+def format_name(name):
+    return snake_case(str(name))
+
+
+def format_class_name(name):
+    return proper(str(name))
+
+
 class PythonUtilities(MappingRule):
     mapping = {
         # control flow
@@ -220,8 +214,7 @@ class PythonUtilities(MappingRule):
         "while loop": replace_in_text("while $:"),
 
         # logic checks
-        "check [<name>] is equal": Function(output_comparison, operator="=="),
-        "check [<name>] is not equal": Function(output_comparison, operator="!="),
+        "check [<name>] is <comparison>": Function(output_comparison),
 
         # declarations/definitions
         "function [<function_name>]": Function(output_function),
