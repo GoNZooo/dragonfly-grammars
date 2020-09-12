@@ -47,6 +47,16 @@ def output_if_comparison(name, comparison=None, construct="if"):
         command.execute()
 
 
+def output_if_expression_comparison(name, comparison=None):
+    if comparison is not None:
+        if name == "":
+            command = replace_in_text("_ if $ %s _ else _" % comparison)
+        else:
+            name = format_name(name)
+            command = replace_in_text("_ if %s %s $ of _" % (name, comparison))
+        command.execute()
+
+
 def output_function(function_name):
     if function_name == "":
         command = replace_in_text("def $(_):")
@@ -91,6 +101,15 @@ def output_if(name, statement_type="if"):
     else:
         name = format_name(name)
         command = Text("%s %s:" % (statement_type, name))
+    command.execute()
+
+
+def output_if_expression(name):
+    if name == "":
+        command = replace_in_text("_ if $ else _")
+    else:
+        name = format_name(name)
+        command = replace_in_text("$ if %s else _" % name)
     command.execute()
 
 
@@ -197,6 +216,8 @@ class PythonUtilities(MappingRule):
         # control flow
         "if [<name>] is <comparison>": Function(output_if_comparison, construct="if"),
         "if [<name>]": Function(output_if, construct="if"),
+        "expression if [<name>] is <comparison>": Function(output_if_expression_comparison),
+        "expression if [<name>]": Function(output_if_expression),
 
         "else if [<name>]": Function(output_if, statement_type="elif"),
         "else if [<name>] is <comparison>": Function(output_if_comparison, construct="elif"),
