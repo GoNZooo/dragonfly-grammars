@@ -53,7 +53,7 @@ def output_if_expression_comparison(name, comparison=None):
             command = replace_in_text("_ if $ %s _ else _" % comparison)
         else:
             name = format_name(name)
-            command = replace_in_text("_ if %s %s $ of _" % (name, comparison))
+            command = replace_in_text("_ if %s %s $ else _" % (name, comparison))
         command.execute()
 
 
