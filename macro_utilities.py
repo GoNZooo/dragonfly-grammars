@@ -1,3 +1,4 @@
+from dragonfly.engines.backend_natlink.dictation import (NatlinkDictationContainer)
 from dragonfly import (Key, Text, Choice)
 
 
@@ -23,3 +24,15 @@ comment_choice_map = {
 
 def comment_choice(name="comment_type"):
     return Choice(name, comment_choice_map)
+
+
+def with_dictation(value, on_dictation, on_other):
+    return on_dictation(value) if is_dictation(value) else on_other(value)
+
+
+def execute_with_dictation(value, on_dictation, on_other):
+    with_dictation(value, on_dictation, on_other).execute()
+
+
+def is_dictation(value):
+    return isinstance(value, NatlinkDictationContainer)
