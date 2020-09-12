@@ -162,15 +162,6 @@ def format_name(name):
     return snake_case(str(name))
 
 
-def output_length_of(name):
-    if name != "":
-        command = replace_in_text("len($)")
-    else:
-        name = format_name(name)
-        command = Text("len(%s)" % name)
-    command.execute()
-
-
 def output_comment(comment, comment_type=None):
     if comment_type is None:
         output_text = "# %s" % comment
