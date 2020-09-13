@@ -475,6 +475,23 @@ def optimization_choice(name="optimization"):
     return Choice(name, optimization_choice_map)
 
 
+initialization_type_choice_map = {
+    "executable": "exe",
+    "binary": "exe",
+    "library": "lib",
+    "lib": "lib",
+}
+
+
+def initialization_type_choice(name="initialization_type"):
+    return Choice(name, initialization_type_choice_map)
+
+
+def output_zig_initialization(initialization_type=None):
+    if initialization_type is not None:
+        Text("zig init-%s" % initialization_type).execute()
+
+
 class ZigUtilities(MappingRule):
     mapping = {
         # control flow
@@ -549,6 +566,8 @@ class ZigUtilities(MappingRule):
                                                                          gnu=False),
         "zig build [<optimization>] [for <build_target_name>] with (freedom|fascism)":
             Function(output_zig_build, gnu=True),
+        "zig in it <initialization_type>": Function(output_zig_initialization),
+        "zig initialize <initialization_type>": Function(output_zig_initialization),
     }
 
     extras = [
@@ -568,6 +587,7 @@ class ZigUtilities(MappingRule):
         IntegerRef("end", 0, 10000000),
         build_target_name_choice("build_target_name"),
         optimization_choice("optimization"),
+        initialization_type_choice("initialization_type"),
     ]
 
 
