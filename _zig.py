@@ -566,8 +566,7 @@ class ZigUtilities(MappingRule):
                                                                          gnu=False),
         "zig build [<optimization>] [for <build_target_name>] with (freedom|fascism)":
             Function(output_zig_build, gnu=True),
-        "zig in it <initialization_type>": Function(output_zig_initialization),
-        "zig initialize <initialization_type>": Function(output_zig_initialization),
+        "zig (in it|initialize) <initialization_type>": Function(output_zig_initialization),
     }
 
     extras = [
