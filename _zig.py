@@ -535,21 +535,27 @@ class ZigUtilities(MappingRule):
         "cast [<value_name>] [into <type_choice>]": Function(output_typecast, is_safe=False),
         "[<value_name>] as [<type_choice>]": Function(output_typecast),
 
-        # other conveniences
+        # calling methods and functions
         "method [<function_name>] [on <value_name>]": Function(output_method_call),
         "call [<function_name>] [on <value_name>]": Function(output_function_call),
         "try method [<function_name>] [on <value_name>]": Function(output_method_call,
                                                                    with_try=True),
         "try call [<function_name>] [on <value_name>]": Function(output_function_call,
                                                                  with_try=True),
-        "import": replace_in_text("const $ = @import(\"_\");"),
-        "[<comment_type>] comment [<comment>]": Function(output_comment),
-        "documentation comment [<comment>]": Function(output_comment, comment_type="documentation"),
-        "library <library>": Function(output_library),
+
+        # indexing into slices and arrays
         "index [<start>] [to <end>]": Function(output_index),
         "index [<start>] onwards": Function(output_index, rest=True),
         "indexing [<start>] [to <end>] into <value_name>": Function(output_index),
         "indexing [<start>] onwards into <value_name>": Function(output_index, rest=True),
+
+        # miscellaneous conveniences
+        "import": replace_in_text("const $ = @import(\"_\");"),
+        "[<comment_type>] comment [<comment>]": Function(output_comment),
+        "documentation comment [<comment>]": Function(output_comment, comment_type="documentation"),
+        "library <library>": Function(output_library),
+
+        # keyword conveniences
         "compile time": Text("comptime "),
         "public": Text("pub "),
         "external": Text("extern "),
