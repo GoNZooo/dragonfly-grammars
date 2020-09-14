@@ -133,8 +133,8 @@ def output_switch(value_name):
     command.execute()
 
 
-def output_function(function_name, type_name, function_attribute=None):
-    attribute_string = function_attribute + " " if function_attribute is not None else ""
+def output_function(function_name, type_name, visibility_attribute=None):
+    attribute_string = visibility_attribute + " " if visibility_attribute is not None else ""
 
     if type_name != "":
         type_name_components = str(type_name).split(" ")
@@ -212,7 +212,7 @@ def output_binding(value_name, is_pointer=False):
     command.execute()
 
 
-function_attribute_map = {
+visibility_attribute_map = {
     "external": "extern",
     "public": "pub",
 }
@@ -222,8 +222,8 @@ def format_function_name(function_name):
     return camel_case(str(function_name).replace("-", ""))
 
 
-def function_attribute_choice(name="function_attribute"):
-    return Choice(name, function_attribute_map)
+def visibility_attribute_choice(name="visibility_attribute"):
+    return Choice(name, visibility_attribute_map)
 
 
 class CastingSpec:
@@ -494,6 +494,12 @@ def output_zig_initialization(initialization_type=None):
         Text("zig init-%s" % initialization_type).execute()
 
 
+def output_using_namespace(visibility_attribute=None):
+    visibility_prefix = "%s " % visibility_attribute if visibility_attribute is not None else ""
+
+    Text("%susingnamespace " % visibility_prefix).execute()
+
+
 class ZigUtilities(MappingRule):
     mapping = {
         # control flow
@@ -520,7 +526,7 @@ class ZigUtilities(MappingRule):
         "variable [<value_name>] [of type <type_name>] is undefined": Function(output_variable,
                                                                                is_undefined=True),
         "test [<test_name>]": Function(output_test),
-        "[<function_attribute>] function [<function_name>] [returning <type_name>]":
+        "[<visibility_attribute>] function [<function_name>] [returning <type_name>]":
             Function(output_function),
         "(call|calling) convention [<calling_convention>]": Function(output_calling_convention),
 
@@ -552,6 +558,7 @@ class ZigUtilities(MappingRule):
         "indexing [<start>] onwards into <value_name>": Function(output_index, rest=True),
 
         # miscellaneous conveniences
+        "[<visibility_attribute>] using namespace": Function(output_using_namespace),
         "import": replace_in_text("const $ = @import(\"_\");"),
         "[<comment_type>] comment [<comment>]": Function(output_comment),
         "documentation comment [<comment>]": Function(output_comment, comment_type="documentation"),
@@ -566,6 +573,9 @@ class ZigUtilities(MappingRule):
         "try": Text("try "),
         "catch": Text("catch "),
         "defer": Text("defer "),
+        "see import": replace_in_text("@cImport({$});"),
+        "see define": replace_in_text("@cDefine($);"),
+        "see include": replace_in_text("@cInclude($);"),
         "arrow": Text(" => "),
         "pointer": Text("ptr"),
 
@@ -590,7 +600,7 @@ class ZigUtilities(MappingRule):
         Dictation("comment", default=""),
         comment_choice("comment_type"),
         comparison_choice("comparison"),
-        function_attribute_choice("function_attribute"),
+        visibility_attribute_choice("visibility_attribute"),
         typecast_choice("type_choice"),
         calling_convention_choice("calling_convention"),
         library_choice("library"),
