@@ -235,12 +235,12 @@ class CastingSpec:
     def get_cast_expression(self, value):
         type_to_cast_into = self.prefix + str(self.size)
 
-        return "%s(%s, %s)" % (self.casting_type, value, type_to_cast_into)
+        return "%s(%s, %s)" % (self.casting_type, type_to_cast_into, value)
 
     def get_safe_cast_expression(self, value):
         type_to_cast_into = self.prefix + str(self.size)
 
-        return "@as(%s, %s)" % (value, type_to_cast_into)
+        return "@as(%s, %s)" % (type_to_cast_into, value)
 
 
 class CastingFloat(CastingSpec):
@@ -293,7 +293,7 @@ def output_typecast(value_name, type_choice=None, is_safe=True):
             command = replace_in_text("@as($, _)")
         else:
             value_name = format_value_name(value_name)
-            command = replace_in_text("@as(%s, $)" % value_name)
+            command = replace_in_text("@as($, %s)" % value_name)
     else:
         if value_name == "":
             if is_safe:
