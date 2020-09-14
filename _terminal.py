@@ -56,10 +56,7 @@ def format_branch_name(branch_name):
 
 
 def output_git_push(branch_name, set_up_stream=False):
-    upstream_text = ""
-    if set_up_stream:
-        upstream_text = " -u"
-
+    upstream_text = " -u origin" if set_up_stream else ""
     branch_name = format_branch_name(branch_name)
     Text("git push%s %s" % (upstream_text, branch_name)).execute()
 
