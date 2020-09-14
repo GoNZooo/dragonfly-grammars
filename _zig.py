@@ -445,14 +445,16 @@ def build_target_name_choice(name="build_target_name"):
     return Choice(name, build_target_name_choice_map)
 
 
-def output_zig_build(build_target_name=None, gnu=False, optimization=None):
+def output_zig_build(build_target_name=None, gnu=False, optimization=None, run=False):
     libc_spec = "-gnu" if gnu else ""
+    running = "run " if run else ""
 
-    command_output = "zig build"
+    command_output = "zig build %s" % running
     if build_target_name is not None:
-        command_output = "zig build -Dtarget=native-%s%s" % (build_target_name, libc_spec)
+        command_output = "zig build %s-Dtarget=native-%s%s" % (
+            running, build_target_name, libc_spec)
     elif gnu:
-        command_output = "zig build -Dtarget=native-native-gnu"
+        command_output = "zig build %s-Dtarget=native-native-gnu" % running
 
     if optimization is not None:
         command_output += " %s" % optimization
@@ -572,6 +574,10 @@ class ZigUtilities(MappingRule):
                                                                          gnu=False),
         "zig build [<optimization>] [for <build_target_name>] with (freedom|fascism)":
             Function(output_zig_build, gnu=True),
+        "zig build run [<optimization>] [for <build_target_name>]": Function(output_zig_build,
+                                                                             gnu=False, run=True),
+        "zig build run [<optimization>] [for <build_target_name>] with (freedom|fascism)":
+            Function(output_zig_build, gnu=True, run=True),
         "zig (in it|initialize) <initialization_type>": Function(output_zig_initialization),
     }
 
