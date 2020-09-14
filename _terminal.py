@@ -68,16 +68,6 @@ def get_clipboard_as_text():
     return clipboard_instance.text
 
 
-def output_git_clone(repository_name, from_clipboard=False):
-    clipboard_contents = get_clipboard_as_text() if from_clipboard else ""
-    Text("git clone %s" % clipboard_contents).execute()
-
-
-def output_git_add_origin(from_clipboard=False):
-    clipboard_contents = get_clipboard_as_text() if from_clipboard else ""
-    Text("git remote add origin %s" % clipboard_contents).execute()
-
-
 def format_directory_name(directory_name, format_type):
     if format_type is None:
         directory_name = barbecue(str(directory_name))
@@ -105,15 +95,31 @@ def output_directory_command(directory_name, format_type=None, directory_command
         ).execute()
 
 
+git_clipboard_command_choice_map = {
+    "clone": "clone",
+    "reset": "reset",
+    "revert": "revert",
+    "add origin": "remote add origin",
+}
+
+
+def git_clipboard_command_choice(name="git_clipboard_command"):
+    return Choice(name, git_clipboard_command_choice_map)
+
+
+def output_git_clipboard_command(git_clipboard_command=None):
+    if git_clipboard_command is not None:
+        clipboard_output = get_clipboard_as_text()
+        Text("git %s %s" % (git_clipboard_command, clipboard_output)).execute()
+
+
 class TerminalUtilities(MappingRule):
     mapping = {
         "get [<git_command>]": Function(output_git_command),
         "get pull [<branch_name>]": Function(output_git_pull),
         "get push upstream [<branch_name>]": Function(output_git_push, set_up_stream=True),
         "get push [<branch_name>]": Function(output_git_push),
-        "get clone from clipboard": Function(output_git_clone, from_clipboard=True),
-        "get clone [<repository_name>]": Function(output_git_clone),
-        "get add origin from clipboard": Function(output_git_add_origin, from_clipboard=True),
+        "get <git_clipboard_command> from clipboard": Function(output_git_clipboard_command),
         "<directory_command> directory [<format_type>] [<directory_name>]":
             Function(output_directory_command),
         "zig cash been": Text("zig-cache/bin"),
@@ -129,6 +135,7 @@ class TerminalUtilities(MappingRule):
         git_command_choice("git_command"),
         formatting_choice("format_type"),
         directory_command_choice("directory_command"),
+        git_clipboard_command_choice("git_clipboard_command"),
     ]
 
 
