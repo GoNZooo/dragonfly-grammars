@@ -553,7 +553,7 @@ class ZigUtilities(MappingRule):
         "import": replace_in_text("const $ = @import(\"_\");"),
         "[<comment_type>] comment [<comment>]": Function(output_comment),
         "documentation comment [<comment>]": Function(output_comment, comment_type="documentation"),
-        "library <library>": Function(output_library),
+        "(library|lib) <library>": Function(output_library),
 
         # keyword conveniences
         "compile time": Text("comptime "),
