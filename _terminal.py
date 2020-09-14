@@ -28,6 +28,8 @@ git_command_choice_map = {
     "new branch": "checkout -b ",
     "status": "status",
     "log": "log",
+    "in it": "init",
+    "initialize": "init",
 }
 
 
