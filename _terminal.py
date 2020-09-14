@@ -72,12 +72,13 @@ def get_clipboard_as_text():
 
 
 def output_git_clone(repository_name, from_clipboard=False):
-    if from_clipboard:
-        clipboard_contents = get_clipboard_as_text()
-        command = Text("git clone %s" % clipboard_contents)
-    else:
-        command = Text("git clone ")
-    command.execute()
+    clipboard_contents = get_clipboard_as_text() if from_clipboard else ""
+    Text("git clone %s" % clipboard_contents).execute()
+
+
+def output_git_add_origin(from_clipboard=False):
+    clipboard_contents = get_clipboard_as_text() if from_clipboard else ""
+    Text("git remote add origin %s" % clipboard_contents).execute()
 
 
 def format_directory_name(directory_name, format_type):
@@ -115,6 +116,7 @@ class TerminalUtilities(MappingRule):
         "get push [<branch_name>]": Function(output_git_push),
         "get clone from clipboard": Function(output_git_clone, from_clipboard=True),
         "get clone [<repository_name>]": Function(output_git_clone),
+        "get add origin from clipboard": Function(output_git_add_origin, from_clipboard=True),
         "<directory_command> directory [<format_type>] [<directory_name>]":
             Function(output_directory_command),
         "zig cash been": Text("zig-cache/bin"),
