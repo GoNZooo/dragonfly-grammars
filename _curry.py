@@ -48,7 +48,7 @@ def output_case(name):
         command = replace_in_text("case $ of")
     else:
         name = dictation_to_identifier(name)
-        command = replace_in_text("case %s$ of" % name)
+        command = Text("case %s of" % name)
     command.execute()
 
 
