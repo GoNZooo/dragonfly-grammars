@@ -1,5 +1,5 @@
 from vim.rules.letter import (snake_case, proper, camel_case)
-from macro_utilities import (replace_in_text, comment_choice)
+from macro_utilities import (replace_in_text, comment_choice, execute_with_dictation)
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule,
                        Dictation, Function, Choice, IntegerRef)
 from textwrap import (wrap)
@@ -500,6 +500,14 @@ def output_using_namespace(visibility_attribute=None):
     Text("%susingnamespace " % visibility_prefix).execute()
 
 
+def output_return(value_name):
+    execute_with_dictation(
+        value_name,
+        lambda n: Text("return %s;" % format_value_name(n)),
+        lambda n: replace_in_text("return $;")
+    )
+
+
 class ZigUtilities(MappingRule):
     mapping = {
         # control flow
@@ -563,6 +571,7 @@ class ZigUtilities(MappingRule):
         "[<comment_type>] comment [<comment>]": Function(output_comment),
         "documentation comment [<comment>]": Function(output_comment, comment_type="documentation"),
         "(library|lib) <library>": Function(output_library),
+        "return [<value_name>]": Function(output_return),
 
         # keyword conveniences
         "compile time": Text("comptime "),
