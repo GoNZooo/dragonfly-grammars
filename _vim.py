@@ -1,4 +1,4 @@
-from dragonfly import (Grammar, CompoundRule, AppContext)
+from dragonfly import (Grammar, CompoundRule, AppContext, MappingRule, Text)
 
 from vim.rules.letter import LetterSequenceRule
 
@@ -17,6 +17,14 @@ class VimDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         VimGrammar.disable()
         print "### vim grammar disabled ###"
+
+
+class VimUtilities(MappingRule):
+    mapping = {
+        "save buffer": Text(":w\n"),
+    }
+
+    extras = []
 
 
 code_context = AppContext(executable="code")
@@ -41,6 +49,7 @@ VimBootstrap.load()
 
 VimGrammar = Grammar("vim grammar", context=vim_context)
 VimGrammar.add_rule(LetterSequenceRule())
+VimGrammar.add_rule(VimUtilities())
 VimGrammar.add_rule(VimDisabler())
 VimGrammar.add_rule(VimEnabler())
 VimGrammar.load()
