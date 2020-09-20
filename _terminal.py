@@ -126,6 +126,8 @@ class TerminalUtilities(MappingRule):
         "code here": Text("code ."),
         "been": Text("bin"),
         "source": Text("src"),
+        "neo-vim": Text("nvim"),
+        "neo-vim QT": Text("nvim-qt"),
     }
 
     extras = [
