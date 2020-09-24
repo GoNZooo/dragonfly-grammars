@@ -521,6 +521,10 @@ def output_import(value_name):
         lambda v: replace_in_text("const $ = import(\"_\");")
     )
 
+def output_import_package(value_name):
+    package_name = format_value_name(value_name)
+    Text("const %s = @import(\"%s\");" % (package_name, package_name)).execute()
+
 
 class ZigUtilities(MappingRule):
     mapping = {
@@ -582,6 +586,7 @@ class ZigUtilities(MappingRule):
         # miscellaneous conveniences
         "[<visibility_attribute>] using namespace": Function(output_using_namespace),
         "import [<value_name>]": Function(output_import),
+        "import package <value_name>": Function(output_import_package),
         "[<comment_type>] comment [<comment>]": Function(output_comment),
         "documentation comment [<comment>]": Function(output_comment, comment_type="documentation"),
         "(library|lib) <library>": Function(output_library),
