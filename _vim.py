@@ -23,6 +23,7 @@ fugitive_command_choice_map = {
     "commit": "Gcommit",
     "status": "Gstatus",
     "stage": "Gwrite",
+    "push": "Gpush",
     "abort": "q!",
     "finish commit": "wq",
 }
