@@ -19,6 +19,24 @@ class VimDisabler(CompoundRule):
         print "### vim grammar disabled ###"
 
 
+buffer_command_choice_map = {
+    "write": "w",
+    "close": "q",
+    "write and close": "wq",
+    "force close": "q!",
+    "delete": "bd",
+}
+
+
+def buffer_command_choice(name="buffer_command"):
+    return Choice(name, buffer_command_choice_map)
+
+
+def output_buffer_command(buffer_command=None):
+    if buffer_command is not None:
+        Text(":%s\n" % buffer_command).execute()
+
+
 fugitive_command_choice_map = {
     "commit": "Gcommit",
     "status": "Gstatus",
@@ -38,14 +56,40 @@ def output_fugitive_command(fugitive_command=None):
         Text(":%s\n" % fugitive_command).execute()
 
 
+gitgutter_command_choice_map = {
+    "stage": " hs",
+    "next": "]c",
+    "previous": "[c",
+    "preview": " hp",
+    "undo": " hu",
+}
+
+
+def gitgutter_command_choice(name="gitgutter_command"):
+    return Choice(name, gitgutter_command_choice_map)
+
+
+def output_gitgutter_command(gitgutter_command=None):
+    if gitgutter_command is not None:
+        Text("%s" % gitgutter_command).execute()
+
+
 class VimUtilities(MappingRule):
     mapping = {
-        "save buffer": Text(":w\n"),
+        # general
+        "<buffer_command> buffer": Function(output_buffer_command),
+
+        # `tpope/vim-fugitive`
         "(fugitive|pope) <fugitive_command>": Function(output_fugitive_command),
+
+        # `airblade/vim-gitgutter`
+        "<gitgutter_command> hunk": Function(output_gitgutter_command),
     }
 
     extras = [
-        fugitive_command_choice("fugitive_command")
+        fugitive_command_choice("fugitive_command"),
+        gitgutter_command_choice("gitgutter_command"),
+        buffer_command_choice("buffer_command"),
     ]
 
 
