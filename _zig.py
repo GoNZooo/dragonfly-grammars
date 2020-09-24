@@ -514,6 +514,14 @@ def output_return(value_name):
     )
 
 
+def output_import(value_name):
+    execute_with_dictation(
+        value_name,
+        lambda v: replace_in_text("const %s = import(\"$\");" % format_value_name(v)),
+        lambda v: replace_in_text("const $ = import(\"_\");")
+    )
+
+
 class ZigUtilities(MappingRule):
     mapping = {
         # control flow
@@ -573,7 +581,7 @@ class ZigUtilities(MappingRule):
 
         # miscellaneous conveniences
         "[<visibility_attribute>] using namespace": Function(output_using_namespace),
-        "import": replace_in_text("const $ = @import(\"_\");"),
+        "import [<value_name>]": Function(output_import),
         "[<comment_type>] comment [<comment>]": Function(output_comment),
         "documentation comment [<comment>]": Function(output_comment, comment_type="documentation"),
         "(library|lib) <library>": Function(output_library),
