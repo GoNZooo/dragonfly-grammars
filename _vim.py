@@ -1,4 +1,4 @@
-from dragonfly import (Grammar, CompoundRule, AppContext, MappingRule, Text)
+from dragonfly import (Grammar, CompoundRule, AppContext, MappingRule, Text, Choice, Function)
 
 from vim.rules.letter import LetterSequenceRule
 
@@ -19,12 +19,33 @@ class VimDisabler(CompoundRule):
         print "### vim grammar disabled ###"
 
 
+fugitive_command_choice_map = {
+    "commit": "Gcommit",
+    "status": "Gstatus",
+    "stage": "Gwrite",
+    "abort": "q!",
+    "finish commit": "wq",
+}
+
+
+def fugitive_command_choice(name="fugitive_command"):
+    return Choice(name, fugitive_command_choice_map)
+
+
+def output_fugitive_command(fugitive_command=None):
+    if fugitive_command is not None:
+        Text(":%s\n" % fugitive_command).execute()
+
+
 class VimUtilities(MappingRule):
     mapping = {
         "save buffer": Text(":w\n"),
+        "(fugitive|pope) <fugitive_command>": Function(output_fugitive_command),
     }
 
-    extras = []
+    extras = [
+        fugitive_command_choice("fugitive_command")
+    ]
 
 
 code_context = AppContext(executable="code")
