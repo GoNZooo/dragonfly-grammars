@@ -280,6 +280,12 @@ typecast_choice_map = {
     "float thirty two": CastingFloat(32),
     "float sixty four": CastingFloat(64),
     "float one twenty eight": CastingFloat(128),
+    "unsigned long": "u64",
+    "long": "i64",
+    "unsigned integer": "i32",
+    "integer": "i32",
+    "unsigned short": "u16",
+    "short": "i16",
 }
 
 
