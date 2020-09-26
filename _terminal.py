@@ -124,6 +124,7 @@ class TerminalUtilities(MappingRule):
             Function(output_directory_command),
         "zig cash been": Text("zig-cache/bin"),
         "code here": Text("code ."),
+        "code without accessibility here": Text("code --disable-renderer-accessibility ."),
         "been": Text("bin"),
         "source": Text("src"),
         "neo-vim": Text("nvim"),
