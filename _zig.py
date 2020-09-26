@@ -1,5 +1,6 @@
 from vim.rules.letter import (snake_case, proper, camel_case)
-from macro_utilities import (replace_in_text, comment_choice, execute_with_dictation)
+from macro_utilities import (replace_in_text, comment_choice,
+                             execute_with_dictation, with_dictation)
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule,
                        Dictation, Function, Choice, IntegerRef)
 from textwrap import (wrap)
@@ -38,11 +39,11 @@ def comparison_choice(name="comparison"):
 
 
 def output_test(test_name):
-    if test_name == "":
-        command = replace_in_text("test \"$\" {}")
-    else:
-        command = Text("test \"%s\" {\n" % test_name)
-    command.execute()
+    execute_with_dictation(
+        test_name,
+        lambda v: Text("test \"%s\" {\n" % v),
+        lambda v: replace_in_text("test \"$\" {}")
+    )
 
 
 def output_constant(value_name, type_name):
@@ -82,82 +83,90 @@ def output_value(definition_type, value_name, type_name, is_undefined=False):
 
 
 def output_type_definition(type_name, definition_type):
-    if type_name == "":
-        command = Text("%s {}" % definition_type)
-    else:
-        type_name = proper(str(type_name))
-        command = replace_in_text("const %s = %s {$};" % (type_name, definition_type))
-    command.execute()
+    execute_with_dictation(
+        type_name,
+        lambda n: replace_in_text("const %s = %s {$};" % (proper(str(n)), definition_type)),
+        lambda n: Text("%s {}" % definition_type)
+    )
 
 
 def output_for_loop(value_name, binding_name=None):
+    def output_with_value_name(name):
+        if binding_name is not None:
+            return Text("for (%s) |%s| {}" % (format_value_name(name), binding))
+        else:
+            return replace_in_text("for (%s) |$| {}" % format_value_name(name))
+
     binding = format_value_name(binding_name) if binding_name is not None else "_"
 
-    if value_name == "":
-        command = replace_in_text("for ($) |%s| {}" % binding)
-    else:
-        value_name = format_value_name(value_name)
-        if binding_name is not None:
-            command = Text("for (%s) |%s| {}" % (value_name, binding))
-        else:
-            command = replace_in_text("for (%s) |$| {}" % value_name)
-    command.execute()
+    execute_with_dictation(
+        value_name,
+        output_with_value_name,
+        lambda n: replace_in_text("for ($) |%s| {}" % binding)
+    )
 
 
 def output_while_loop(value_name, binding_name=None):
     maybe_unpack = "|%s| " % format_value_name(binding_name) if binding_name is not None else ""
 
-    if value_name == "":
-        command = replace_in_text("while ($) %s{}" % (maybe_unpack))
-    else:
-        value_name = format_value_name(value_name)
-        command = Text("while (%s) %s{}" % (value_name, maybe_unpack))
-    command.execute()
+    execute_with_dictation(
+        value_name,
+        lambda n: Text("while (%s) %s{}" % (format_value_name(n), maybe_unpack)),
+        lambda n: replace_in_text("while ($) %s {}" % maybe_unpack)
+    )
 
 
 def output_if(value_name, construct):
-    if value_name == "":
-        command = replace_in_text("%s ($) {}" % construct)
-    else:
-        value_name = format_value_name(value_name)
-        command = Text("%s (%s) {}" % (construct, value_name))
-    command.execute()
+    execute_with_dictation(
+        value_name,
+        lambda n: Text("%s (%s) {}" % (construct, format_value_name(n))),
+        lambda n: replace_in_text("%s ($) {}" % construct)
+    )
 
 
 def output_switch(value_name):
-    if value_name == "":
-        command = replace_in_text("switch ($) {}")
-    else:
-        value_name = format_value_name(value_name)
-        command = Text("switch (%s) {}" % value_name)
-    command.execute()
+    execute_with_dictation(
+        value_name,
+        lambda n: Text("switch (%s) {}" % format_value_name(n)),
+        lambda n: replace_in_text("switch ($) {}")
+    )
 
 
 def output_function(function_name, type_name, visibility_attribute=None):
     attribute_string = visibility_attribute + " " if visibility_attribute is not None else ""
 
-    if type_name != "":
-        type_name_components = str(type_name).split(" ")
-        if len(type_name_components) != 1:
-            type_name = proper(str(type_name))
-    else:
-        type_name = "_"
-    if function_name == "":
-        command = replace_in_text("%sfn $(_) %s {}" % (attribute_string, type_name))
-    else:
-        function_name = format_function_name(function_name)
-        command = replace_in_text("%sfn %s($) %s {}" % (attribute_string, function_name, type_name))
-    command.execute()
+    def output_with_type_name(name):
+        type_name_components = str(name).split(" ")
+        type_name = format_type_name(name) if len(type_name_components) != 1 else name
+        command_with_function_name = replace_in_text(
+            "%sfn %s($) %s {}" % (attribute_string, format_function_name(function_name), type_name)
+        )
+        command_without_function_name = replace_in_text(
+            "%sfn $(_) %s {}" % (attribute_string, type_name)
+        )
+
+        return with_dictation(
+            function_name,
+            lambda n: command_with_function_name,
+            lambda n: command_without_function_name
+        )
+
+    execute_with_dictation(
+        type_name,
+        output_with_type_name,
+        lambda n: output_with_type_name("_")
+    )
 
 
 def output_if_comparison(value_name, construct, comparison=None):
     if comparison is not None:
-        if value_name == "":
-            command = replace_in_text("%s ($ %s _) {}" % (construct, comparison))
-        else:
-            value_name = snake_case(str(value_name))
-            command = replace_in_text("%s (%s %s $) {}" % (construct, value_name, comparison))
-        command.execute()
+        execute_with_dictation(
+            value_name,
+            lambda n: replace_in_text(
+                "%s (%s %s $) {}" % (construct, format_value_name(n), comparison)
+            ),
+            lambda n: replace_in_text("%s ($ %s _) {}" % (construct, comparison))
+        )
 
 
 def output_unpack_if(value_name, binding_name=None):
@@ -193,23 +202,21 @@ def output_comment(comment, comment_type=None):
 
 def output_comparison(value_name, comparison=None):
     if comparison is not None:
-        if value_name == "":
-            command = replace_in_text("$ %s _" % comparison)
-        else:
-            value_name = format_value_name(value_name)
-            command = Text("%s %s " % (value_name, comparison))
-        command.execute()
+        execute_with_dictation(
+            value_name,
+            lambda n: Text("%s %s " % (format_value_name(n), comparison)),
+            lambda n: replace_in_text("$ %s _" % comparison)
+        )
 
 
 def output_binding(value_name, is_pointer=False):
     pointer_suffix = ".*" if is_pointer else ""
 
-    if value_name == "":
-        command = replace_in_text("$%s = " % pointer_suffix)
-    else:
-        value_name = format_value_name(value_name)
-        command = Text("%s%s = " % (value_name, pointer_suffix))
-    command.execute()
+    execute_with_dictation(
+        value_name,
+        lambda n: Text("%s%s = " % (format_value_name(n), pointer_suffix)),
+        lambda n: replace_in_text("$%s = " % pointer_suffix)
+    )
 
 
 visibility_attribute_map = {
@@ -294,28 +301,30 @@ def typecast_choice(name="type_choice"):
 
 
 def output_typecast(value_name, type_choice=None, is_safe=True):
-    if type_choice is None:
-        if value_name == "":
-            command = replace_in_text("@as($, _)")
-        else:
-            value_name = format_value_name(value_name)
-            command = replace_in_text("@as($, %s)" % value_name)
-    else:
-        if value_name == "":
-            if is_safe:
-                output_string = type_choice.get_safe_cast_expression("$")
-            else:
-                output_string = type_choice.get_cast_expression("$")
-            command = replace_in_text(output_string)
-        else:
-            value_name = format_value_name(value_name)
-            if is_safe:
-                output_string = type_choice.get_safe_cast_expression(value_name)
-            else:
-                output_string = type_choice.get_cast_expression(value_name)
-            command = Text(output_string)
+    def execute_without_type_choice(name):
+        execute_with_dictation(
+            name,
+            lambda n: replace_in_text("@as($, %s)" % format_value_name(n)),
+            lambda n: replace_in_text("@as($, _)")
+        )
 
-    command.execute()
+    def execute_with_type_choice(name, choice):
+        def command_with_name(n, is_safe):
+            safe_expression = type_choice.get_safe_cast_expression(n)
+            unsafe_expression = type_choice.get_cast_expression(n)
+
+            return Text(safe_expression if is_safe else unsafe_expression)
+
+        execute_with_dictation(
+            name,
+            lambda n: command_with_name(n, is_safe),
+            lambda n: command_with_name("$", is_safe)
+        )
+
+    if type_choice is None:
+        execute_without_type_choice(value_name)
+    else:
+        execute_with_type_choice(value_name, type_choice)
 
 
 calling_convention_choice_map = {
@@ -521,9 +530,14 @@ def output_import(value_name):
         lambda v: replace_in_text("const $ = import(\"_\");")
     )
 
+
 def output_import_package(value_name):
     package_name = format_value_name(value_name)
     Text("const %s = @import(\"%s\");" % (package_name, package_name)).execute()
+
+
+def format_type_name(name):
+    return proper(str(name))
 
 
 class ZigUtilities(MappingRule):
