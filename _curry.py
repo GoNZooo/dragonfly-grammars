@@ -259,8 +259,8 @@ class CurryUtilities(MappingRule):
         "monad IO": Text("MonadIO m"),
         "monad state": Text("MonadState s m"),
         "data type [<type_name>]": Function(output_data_type),
-        "new type [<type_name>] [is <new_type_base>]": Function(output_new_type),
-        "wrapped type [<type_name>] [is <new_type_base>]": Function(output_wrapped_type),
+        "new type [<new_type_base>] is called [<type_name>]": Function(output_new_type),
+        "wrapped [<new_type_base>] is called [<type_name>]": Function(output_wrapped_type),
         "language extension <language_extension>": Function(output_language_extension),
         "[<comment_type>] comment [<comment>]": Function(output_comment),
 
