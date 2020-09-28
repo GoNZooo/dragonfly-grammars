@@ -22,11 +22,11 @@ class BarneyDisabler(CompoundRule):
 
 
 type_name_choice_map = {
-    "integer": "int",
-    "unsigned integer": "unsigned int",
     "short": "short",
-    "unsigned short": "unsigned short",
+    "integer": "int",
     "long": "long",
+    "unsigned short": "unsigned short",
+    "unsigned integer": "unsigned int",
     "unsigned long": "unsigned long",
     "character": "char",
     "boolean": "bool",
@@ -41,8 +41,18 @@ type_name_choice_map = {
     "you sixteen": "uint16_t",
     "you thirty two": "uint32_t",
     "you sixty four": "uint64_t",
-    "you eight": "uint8_t",
-    "you eight": "uint8_t",
+    "unsigned eight": "uint8_t",
+    "unsigned sixteen": "uint16_t",
+    "unsigned thirty two": "uint32_t",
+    "unsigned sixty four": "uint64_t",
+    "i eight": "int8_t",
+    "i sixteen": "int16_t",
+    "i thirty two": "int32_t",
+    "i sixty four": "int64_t",
+    "signed eight": "int8_t",
+    "signed sixteen": "int16_t",
+    "signed thirty two": "int32_t",
+    "signed sixty four": "int64_t",
     "size": "size_t",
 }
 
