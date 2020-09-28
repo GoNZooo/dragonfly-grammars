@@ -1,4 +1,4 @@
-from dragonfly import (Choice, Function, MappingRule, Grammar, CompoundRule, Dictation)
+from dragonfly import (Choice, Function, MappingRule, Grammar, CompoundRule, Dictation, Text)
 from vim.rules.letter import (snake_case)
 from macro_utilities import (replace_in_text, execute_with_dictation)
 
@@ -74,6 +74,19 @@ def output_value(value_name, type_name=None, is_constant=False):
         )
 
 
+def output_type_annotation(value_name, type_name=None, is_constant=False):
+    constant_prefix = "const " if is_constant else ""
+
+    if type_name is not None:
+        execute_with_dictation(
+            value_name,
+            lambda n: Text(
+                "%s%s %s" % (constant_prefix, type_name, format_value_name(n))
+            ),
+            lambda n: replace_in_text("%s%s $" % (constant_prefix, type_name))
+        )
+
+
 def format_value_name(name):
     return snake_case(str(name))
 
@@ -84,6 +97,9 @@ class BarneyUtilities(MappingRule):
         "constant <type_name> [<value_name>]": Function(output_value, is_constant=True),
         "variable [<value_name>]": Function(output_value, type_name="auto"),
         "variable <type_name> [<value_name>]": Function(output_value),
+        "<type_name> [<value_name>]": Function(output_type_annotation),
+        "<type_name> [<value_name>] is constant": Function(output_type_annotation,
+                                                           is_constant=True),
     }
 
     extras = [
