@@ -33,7 +33,17 @@ type_name_choice_map = {
     "void": "void",
     "bite": "byte",
     "string": "std::string",
+    "string view": "std::string_view",
+    "unique_pointer": "std::unique_ptr",
+    "shared_pointer": "std::shared_ptr",
     "standard vector": "std::vector",
+    "you eight": "uint8_t",
+    "you sixteen": "uint16_t",
+    "you thirty two": "uint32_t",
+    "you sixty four": "uint64_t",
+    "you eight": "uint8_t",
+    "you eight": "uint8_t",
+    "size": "size_t",
 }
 
 
