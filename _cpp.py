@@ -61,12 +61,16 @@ def type_name_choice(name="type_name"):
     return Choice(name, type_name_choice_map)
 
 
-def output_constant(value_name, type_name=None):
+def output_value(value_name, type_name=None, is_constant=False):
+    constant_prefix = "const " if is_constant else ""
+
     if type_name is not None:
         execute_with_dictation(
             value_name,
-            lambda n: replace_in_text("const %s %s = $;" % (type_name, format_value_name(n))),
-            lambda n: replace_in_text("const %s $ = _;" % type_name)
+            lambda n: replace_in_text(
+                "%s%s %s = $;" % (constant_prefix, type_name, format_value_name(n))
+            ),
+            lambda n: replace_in_text("%s%s $ = _;" % (constant_prefix, type_name))
         )
 
 
@@ -76,8 +80,10 @@ def format_value_name(name):
 
 class BarneyUtilities(MappingRule):
     mapping = {
-        "constant [<value_name>]": Function(output_constant, type_name="auto"),
-        "constant <type_name> [<value_name>]": Function(output_constant),
+        "constant [<value_name>]": Function(output_value, type_name="auto", is_constant=True),
+        "constant <type_name> [<value_name>]": Function(output_value, is_constant=True),
+        "variable [<value_name>]": Function(output_value, type_name="auto"),
+        "variable <type_name> [<value_name>]": Function(output_value),
     }
 
     extras = [
