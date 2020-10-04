@@ -120,6 +120,14 @@ def output_gen_server_command(gen_server_command=None):
     command.execute()
 
 
+def output_pipe_into(name):
+    execute_with_dictation(
+        name,
+        lambda n: replace_in_text("|> %s()" % format_name(n)),
+        lambda n: Text("|> ")
+    )
+
+
 def format_module_name(name):
     name_string = str(name)
     components = name_string.split(".")
@@ -165,6 +173,7 @@ class ElixirUtilities(MappingRule):
         "require [<module_name>]": Function(output_module_directive, directive="require"),
         "alias [<module_name>] [as <alias_name>]": Function(output_alias),
         "interactive mix": Text("iex -S mix"),
+        "pipe into [<name>]": Function(output_pipe_into),
     }
 
     extras = [
