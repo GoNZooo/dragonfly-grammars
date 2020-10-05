@@ -128,6 +128,31 @@ def output_pipe_into(name):
     )
 
 
+log_level_choice_map = {
+    "debug": "debug",
+    "warn": "warn",
+    "worn": "warn",
+    "error": "error",
+}
+
+
+def log_level_choice(name="log_level"):
+    return Choice(name, log_level_choice_map)
+
+
+def output_log_statement(name, log_level=None):
+    if log_level is not None:
+        execute_with_dictation(
+            name,
+            lambda n: Text("Logger.%s(\"XXXXXX: #{inspect(%s, pretty: true)}\")" % (log_level,
+                                                                                    name)),
+            lambda n: replace_in_text(
+                "Logger.%s(\"XXXXXX: #{inspect($, pretty: true)}\")" %
+                log_level
+            ),
+        )
+
+
 def format_module_name(name):
     name_string = str(name)
     components = name_string.split(".")
@@ -163,10 +188,7 @@ class ElixirUtilities(MappingRule):
         "equals": Text(" = "),
         "arrow": Text(" -> "),
         "fat arrow": Text(" => "),
-        "log debug": insert_log_statement("debug"),
-        "log (warn|worn)": insert_log_statement("warn"),
-        "log error": insert_log_statement("error"),
-        "log info": insert_log_statement("info"),
+        "log <log_level>": Function(output_log_statement),
         "use [<module_name>]": Function(output_module_directive, directive="use"),
         "use jen server": Text("use GenServer"),
         "jen server [<gen_server_command>]": Function(output_gen_server_command),
@@ -181,7 +203,8 @@ class ElixirUtilities(MappingRule):
         Dictation("alias_name", default=""),
         Dictation("name", default=""),
         Dictation("binding", default=""),
-        gen_server_command_choice("gen_server_command")
+        gen_server_command_choice("gen_server_command"),
+        log_level_choice("log_level"),
     ]
 
 
