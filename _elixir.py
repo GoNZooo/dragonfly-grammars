@@ -154,6 +154,24 @@ def output_log_statement(name, log_level=None):
         )
 
 
+interactive_command_choice_map = {
+    "mix": "-S mix",
+    "run": "-S mix",
+    "phoenix": "-S mix phx.server",
+    "run phoenix": "-S mix phx.server",
+}
+
+
+def interactive_command_choice(name="interactive_command"):
+    return Choice(name, interactive_command_choice_map)
+
+
+def output_interactive_command(interactive_command=None):
+    interactive_command_output = interactive_command if interactive_command is not None else ""
+
+    Text("iex %s" % interactive_command_output).execute()
+
+
 def format_module_name(name):
     name_string = str(name)
     components = name_string.split(".")
@@ -195,7 +213,7 @@ class ElixirUtilities(MappingRule):
         "jen server [<gen_server_command>]": Function(output_gen_server_command),
         "require [<module_name>]": Function(output_module_directive, directive="require"),
         "alias [<module_name>] [as <alias_name>]": Function(output_alias),
-        "interactive mix": Text("iex -S mix"),
+        "interactive [<interactive_command>]": Function(output_interactive_command),
         "pipe into [<name>]": Function(output_pipe_into),
     }
 
@@ -206,6 +224,7 @@ class ElixirUtilities(MappingRule):
         Dictation("binding", default=""),
         gen_server_command_choice("gen_server_command"),
         log_level_choice("log_level"),
+        interactive_command_choice("interactive_command"),
     ]
 
 
