@@ -123,7 +123,7 @@ def output_gen_server_command(gen_server_command=None):
 def output_pipe_into(name):
     execute_with_dictation(
         name,
-        lambda n: replace_in_text("|> %s()" % format_name(n)),
+        lambda n: Text("|> %s()" % format_name(n)),
         lambda n: Text("|> ")
     )
 
