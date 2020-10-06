@@ -144,8 +144,9 @@ def output_log_statement(name, log_level=None):
     if log_level is not None:
         execute_with_dictation(
             name,
-            lambda n: Text("Logger.%s(\"XXXXXX: #{inspect(%s, pretty: true)}\")" % (log_level,
-                                                                                    name)),
+            lambda n: Text(
+                "Logger.%s(\"XXXXXX: #{inspect(%s, pretty: true)}\")" % (log_level, format_name(n))
+            ),
             lambda n: replace_in_text(
                 "Logger.%s(\"XXXXXX: #{inspect($, pretty: true)}\")" %
                 log_level
