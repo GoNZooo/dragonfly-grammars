@@ -172,6 +172,30 @@ def output_interactive_command(interactive_command=None):
     Text("iex %s" % interactive_command_output).execute()
 
 
+mix_command_choice_map = {
+    "test": "test",
+    # @TODO: should probably make this a subcommand of its own
+    "help": "help",
+    # @TODO: should probably make this a subcommand of its own
+    "new": "new ",
+    "new phoenix": "phx.new ",
+    "get dependencies": "deps.get",
+    "compile dependencies": "deps.compile",
+    "generate migration": "ecto.gen.migration ",
+    "migrate": "ecto.migrate",
+    "create database": "ecto.create",
+}
+
+
+def mix_command_choice(name="mix_command"):
+    return Choice(name, mix_command_choice_map)
+
+
+def output_mix_command(mix_command=None):
+    if mix_command is not None:
+        Text("mix %s" % mix_command).execute()
+
+
 def format_module_name(name):
     name_string = str(name)
     components = name_string.split(".")
@@ -215,6 +239,7 @@ class ElixirUtilities(MappingRule):
         "alias [<module_name>] [as <alias_name>]": Function(output_alias),
         "interactive [<interactive_command>]": Function(output_interactive_command),
         "pipe into [<name>]": Function(output_pipe_into),
+        "mix <mix_command>": Function(output_mix_command),
     }
 
     extras = [
@@ -225,6 +250,7 @@ class ElixirUtilities(MappingRule):
         gen_server_command_choice("gen_server_command"),
         log_level_choice("log_level"),
         interactive_command_choice("interactive_command"),
+        mix_command_choice("mix_command"),
     ]
 
 
