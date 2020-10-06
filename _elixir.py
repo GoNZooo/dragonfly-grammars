@@ -5,11 +5,6 @@ from macro_utilities import (replace_in_text, execute_with_dictation)
 from vim.rules.letter import (proper, snake_case)
 
 
-def insert_log_statement(log_level):
-    return (Text("Logger.") + Text(log_level) +
-            replace_in_text("(\"XXXXXX: #{inspect($, pretty: true)}\")"))
-
-
 class ElixirEnabler(CompoundRule):
     spec = "enable elixir"
 
