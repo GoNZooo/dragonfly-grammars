@@ -189,7 +189,7 @@ class ElixirUtilities(MappingRule):
         "equals": Text(" = "),
         "arrow": Text(" -> "),
         "fat arrow": Text(" => "),
-        "log <log_level>": Function(output_log_statement),
+        "log <log_level> [<name>]": Function(output_log_statement),
         "use [<module_name>]": Function(output_module_directive, directive="use"),
         "use jen server": Text("use GenServer"),
         "jen server [<gen_server_command>]": Function(output_gen_server_command),
