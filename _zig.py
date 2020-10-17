@@ -535,6 +535,14 @@ def output_import(value_name):
     )
 
 
+def output_size_of(type_name):
+    execute_with_dictation(
+        type_name,
+        lambda n: Text("@sizeOf(%s)" % format_type_name(n)),
+        lambda n: replace_in_text("@sizeOf($)")
+    )
+
+
 def output_import_package(value_name):
     package_name = format_value_name(value_name)
     Text("const %s = @import(\"%s\");" % (package_name, package_name)).execute()
@@ -611,6 +619,7 @@ class ZigUtilities(MappingRule):
         "return [<value_name>]": Function(output_return),
 
         # keyword conveniences
+        "size of [<type_name>]": Function(output_size_of),
         "compile time": Text("comptime "),
         "public": Text("pub "),
         "external": Text("extern "),
