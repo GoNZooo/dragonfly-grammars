@@ -27,6 +27,7 @@ git_command_choice_map = {
     "check out": "checkout ",
     "new branch": "checkout -b ",
     "status": "status",
+    "stash": "stash",
     "log": "log",
     "in it": "init",
     "initialize": "init",
