@@ -9,7 +9,7 @@ class TypescriptEnabler(CompoundRule):
     def _process_recognition(self, node, extras):
         typescriptBootstrap.disable()
         typescriptGrammar.enable()
-        print "Typescript grammar enabled!"
+        print("Typescript grammar enabled!")
 
 
 class TypescriptDisabler(CompoundRule):
@@ -18,7 +18,7 @@ class TypescriptDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         typescriptGrammar.disable()
         typescriptBootstrap.enable()
-        print "Typescript grammar disabled"
+        print("Typescript grammar disabled")
 
 
 visibility_attribute_choice_map = {

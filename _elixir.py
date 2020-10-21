@@ -11,7 +11,7 @@ class ElixirEnabler(CompoundRule):
     def _process_recognition(self, node, extras):
         elixirBootstrap.disable()
         elixirGrammar.enable()
-        print "Elixir grammar enabled!"
+        print("Elixir grammar enabled!")
 
 
 class ElixirDisabler(CompoundRule):
@@ -20,7 +20,7 @@ class ElixirDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         elixirGrammar.disable()
         elixirBootstrap.enable()
-        print "Elixir grammar disabled"
+        print("Elixir grammar disabled")
 
 
 def output_module(module_name):

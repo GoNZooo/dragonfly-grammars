@@ -7,7 +7,7 @@ class PythonEnabler(CompoundRule):
     def _process_recognition(self, node, extras):  # Callback when command is spoken.
         pythonBootstrap.disable()
         pythonGrammar.enable()
-        print "Python grammar enabled"
+        print("Python grammar enabled")
 
 
 class PythonDisabler(CompoundRule):
@@ -16,7 +16,7 @@ class PythonDisabler(CompoundRule):
     def _process_recognition(self, node, extras):  # Callback when command is spoken.
         pythonGrammar.disable()
         pythonBootstrap.enable()
-        print "Python grammar disabled"
+        print("Python grammar disabled")
 
 
 pythonBootstrap = Grammar("python bootstrap")
@@ -27,7 +27,9 @@ pythonGrammar = Grammar("python grammar")
 pythonGrammar.load()
 pythonGrammar.disable()
 
+
 def unload():
     global pythonGrammar
-    if pythonGrammar: pythonGrammar.unload()
+    if pythonGrammar:
+        pythonGrammar.unload()
     pythonGrammar = None

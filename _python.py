@@ -9,7 +9,7 @@ class PythonEnabler(CompoundRule):
     def _process_recognition(self, node, extras):
         pythonBootstrap.disable()
         pythonGrammar.enable()
-        print "Python grammar enabled!"
+        print("Python grammar enabled!")
 
 
 class PythonDisabler(CompoundRule):
@@ -18,7 +18,7 @@ class PythonDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         pythonGrammar.disable()
         pythonBootstrap.enable()
-        print "Python grammar disabled"
+        print("Python grammar disabled")
 
 
 comparison_choice_map = {

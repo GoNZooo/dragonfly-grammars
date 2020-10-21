@@ -9,7 +9,7 @@ class CurryEnabler(CompoundRule):
     def _process_recognition(self, node, extras):
         curryBootstrap.disable()
         curryGrammar.enable()
-        print "Curry grammar enabled!"
+        print("Curry grammar enabled!")
 
 
 class CurryDisabler(CompoundRule):
@@ -18,7 +18,7 @@ class CurryDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         curryGrammar.disable()
         curryBootstrap.enable()
-        print "Curry grammar disabled"
+        print("Curry grammar disabled")
 
 
 def dictation_to_identifier(dictation):

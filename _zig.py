@@ -12,7 +12,7 @@ class ZigEnabler(CompoundRule):
     def _process_recognition(self, node, extras):
         zigBootstrap.disable()
         zigGrammar.enable()
-        print "Zig grammar enabled!"
+        print("Zig grammar enabled!")
 
 
 class ZigDisabler(CompoundRule):
@@ -21,7 +21,7 @@ class ZigDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         zigGrammar.disable()
         zigBootstrap.enable()
-        print "Zig grammar disabled"
+        print("Zig grammar disabled")
 
 
 comparison_choice_map = {

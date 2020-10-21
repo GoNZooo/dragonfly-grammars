@@ -9,7 +9,7 @@ class TerminalEnabler(CompoundRule):
     def _process_recognition(self, node, extras):
         terminal_bootstrap.disable()
         terminal_grammar.enable()
-        print "Terminal grammar enabled!"
+        print("Terminal grammar enabled!")
 
 
 class TerminalDisabler(CompoundRule):
@@ -18,7 +18,7 @@ class TerminalDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         terminal_grammar.disable()
         terminal_bootstrap.enable()
-        print "Terminal grammar disabled"
+        print("Terminal grammar disabled")
 
 
 git_command_choice_map = {

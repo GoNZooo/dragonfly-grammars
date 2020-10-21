@@ -1,7 +1,4 @@
-from dragonfly import (Grammar, CompoundRule, Text, MappingRule,
-                       Dictation, Function, Choice, IntegerRef)
-from dragonfly.windows.clipboard import (Clipboard)
-from vim.rules.letter import (barbecue, formatting_choice, format_dictation)
+from dragonfly import (Grammar, CompoundRule, MappingRule, IntegerRef, Function)
 
 
 class DynamicConfigurationEnabler(CompoundRule):
@@ -10,7 +7,7 @@ class DynamicConfigurationEnabler(CompoundRule):
     def _process_recognition(self, node, extras):
         dynamic_configuration_bootstrap.disable()
         dynamic_configuration_grammar.enable()
-        print "dynamic configuration grammar enabled!"
+        print("dynamic configuration grammar enabled!")
 
 
 class DynamicConfigurationDisabler(CompoundRule):
@@ -19,7 +16,7 @@ class DynamicConfigurationDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         dynamic_configuration_grammar.disable()
         dynamic_configuration_bootstrap.enable()
-        print "dynamic configuration grammar disabled"
+        print("dynamic configuration grammar disabled")
 
 
 sleep = 15

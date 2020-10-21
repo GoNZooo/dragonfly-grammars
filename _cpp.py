@@ -9,7 +9,7 @@ class BarneyEnabler(CompoundRule):
     def _process_recognition(self, node, extras):
         barney_bootstrap.disable()
         barney_grammar.enable()
-        print "Barney grammar enabled!"
+        print("Barney grammar enabled!")
 
 
 class BarneyDisabler(CompoundRule):
@@ -18,7 +18,7 @@ class BarneyDisabler(CompoundRule):
     def _process_recognition(self, node, extras):
         barney_grammar.disable()
         barney_bootstrap.enable()
-        print "Barney grammar disabled"
+        print("Barney grammar disabled")
 
 
 type_name_choice_map = {

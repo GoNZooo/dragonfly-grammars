@@ -8,7 +8,7 @@ class VimEnabler(CompoundRule):
 
     def _process_recognition(self, node, extras):
         VimGrammar.enable()
-        print "### vim grammar enabled ###"
+        print("### vim grammar enabled ###")
 
 
 class VimDisabler(CompoundRule):
@@ -16,7 +16,7 @@ class VimDisabler(CompoundRule):
 
     def _process_recognition(self, node, extras):
         VimGrammar.disable()
-        print "### vim grammar disabled ###"
+        print("### vim grammar disabled ###")
 
 
 buffer_command_choice_map = {
