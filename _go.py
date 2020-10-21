@@ -32,11 +32,18 @@ def visibility_attribute_choice(name="visibility_attribute"):
     return Choice(name, visibility_attribute_choice_map)
 
 
-def output_function(name, visibility_attribute=None):
+def output_function(name, visibility_attribute=None, is_method=False):
+    method_parameter_output = "_" if name == "" else "$"
+    method_output = "(%s) " % method_parameter_output if is_method else ""
+    parameter_output = "_" if name == "" or is_method else "$"
+
     execute_with_dictation(
         name,
-        lambda n: replace_in_text("func %s($) _ {" % format_name(n, visibility_attribute)),
-        lambda n: replace_in_text("func $(_) _ {")
+        lambda n: replace_in_text(
+            "func %s%s(%s) _ {" % (method_output, format_name(
+                n, visibility_attribute), parameter_output)
+        ),
+        lambda n: replace_in_text("func %s$(_) _ {" % method_output)
     )
 
 
@@ -107,6 +114,7 @@ class GoUtilities(MappingRule):
         "else": Text("else {") + Key("enter"),
 
         "[<visibility_attribute>] function [<name>]": Function(output_function),
+        "[<visibility_attribute>] method [<name>]": Function(output_function, is_method=True),
         "[<visibility_attribute>] struct [<name>]": Function(output_type, construct="struct"),
         "[<visibility_attribute>] interface [<name>]": Function(output_type, construct="interface"),
     }
