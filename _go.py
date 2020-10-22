@@ -92,6 +92,14 @@ def output_if_comparison(name, construct, comparison=None):
         )
 
 
+def output_error_check(name):
+    execute_with_dictation(
+        name,
+        lambda n: Text("if %s != nil {\n" % format_variable_name(n)),
+        lambda n: Text("if err != nil {\n")
+    )
+
+
 def format_variable_name(name):
     return camel_case(str(name).replace("-", ""))
 
@@ -112,6 +120,7 @@ class GoUtilities(MappingRule):
         "else if [<name>] is <comparison>": Function(output_if_comparison, construct="else if"),
 
         "else": Text("else {") + Key("enter"),
+        "error check [on <name>]": Function(output_error_check),
 
         "[<visibility_attribute>] function [<name>]": Function(output_function),
         "[<visibility_attribute>] method [<name>]": Function(output_function, is_method=True),
