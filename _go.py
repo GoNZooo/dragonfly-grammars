@@ -187,6 +187,18 @@ def output_ranged_for_loop(name):
     )
 
 
+def output_switch(name):
+    execute_with_dictation(
+        name,
+        lambda n: Text("switch %s {\n" % format_variable_name(n)),
+        lambda n: replace_in_text("switch $ {")
+    )
+
+
+def output_case():
+    replace_in_text("case $ :").execute()
+
+
 class GoUtilities(MappingRule):
     mapping = {
         # control flow
@@ -198,6 +210,9 @@ class GoUtilities(MappingRule):
 
         "else": Text("else {") + Key("enter"),
         "error check [on <name>]": Function(output_error_check),
+
+        "switch [on <name>]": Function(output_switch),
+        "case": Function(output_case),
 
         "for loop": Function(output_for_loop),
         "for loop over [<name>]": Function(output_ranged_for_loop),
