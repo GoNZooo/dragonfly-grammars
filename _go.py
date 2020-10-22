@@ -64,8 +64,6 @@ comparison_choice_map = {
     "greater or equal": ">=",
     "less": "<",
     "greater": ">",
-    "none": "== nil",
-    "not none": "!= nil",
 }
 
 
@@ -78,6 +76,16 @@ def output_if(name, statement_type):
         name,
         on_dictation=lambda v: Text("%s %s {" % (statement_type, format_variable_name(name))),
         on_other=lambda v: replace_in_text("%s $ {" % statement_type),
+    )
+
+
+def output_none_check(name, construct, is_not=False):
+    comparison_output = "!= nil" if is_not else "== nil"
+
+    execute_with_dictation(
+        name,
+        lambda n: Text("%s %s %s {\n" % (construct, format_variable_name(n), comparison_output)),
+        lambda n: replace_in_text("%s $ %s {" % (construct, comparison_output))
     )
 
 
@@ -203,6 +211,8 @@ class GoUtilities(MappingRule):
     mapping = {
         # control flow
         "if [<name>] is <comparison>": Function(output_if_comparison, construct="if"),
+        "if [<name>] is none": Function(output_none_check, construct="if", is_not=False),
+        "if [<name>] is not none": Function(output_none_check, construct="if", is_not=True),
         "if [<name>]": Function(output_if, statement_type="if"),
 
         "else if [<name>]": Function(output_if, statement_type="else if"),
