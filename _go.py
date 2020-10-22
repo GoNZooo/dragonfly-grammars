@@ -47,7 +47,7 @@ def output_function(name, visibility_attribute=None, is_method=False):
     )
 
 
-def output_type(name,  construct, visibility_attribute=None):
+def output_type(name, construct, visibility_attribute=None):
     execute_with_dictation(
         name,
         lambda n: Text(
@@ -100,6 +100,25 @@ def output_error_check(name):
     )
 
 
+type_name_choice_map = {
+    "string": "string",
+    "integer": "int",
+    "boolean": "bool",
+    "float": "float",
+}
+
+
+def type_name_choice(name="type_name"):
+    return Choice(name, type_name_choice_map)
+
+
+def output_make_slice(type_name=None):
+    type_output = type_name if type_name is not None else "$"
+    size_output = "$" if type_name is not None else "_"
+
+    replace_in_text("make([]%s, %s)" % (type_output, size_output)).execute()
+
+
 def format_variable_name(name):
     return camel_case(str(name).replace("-", ""))
 
@@ -126,11 +145,14 @@ class GoUtilities(MappingRule):
         "[<visibility_attribute>] method [<name>]": Function(output_function, is_method=True),
         "[<visibility_attribute>] struct [<name>]": Function(output_type, construct="struct"),
         "[<visibility_attribute>] interface [<name>]": Function(output_type, construct="interface"),
+
+        "make [<type_name>] slice": Function(output_make_slice),
     }
 
     extras = [
         Dictation("name", default=""),
         visibility_attribute_choice("visibility_attribute"),
+        type_name_choice("type_name"),
         comparison_choice("comparison"),
     ]
 
