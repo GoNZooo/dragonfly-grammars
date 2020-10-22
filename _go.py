@@ -144,8 +144,24 @@ def output_make_channel(type_name=None):
         replace_in_text("make(chan $)").execute()
 
 
+def output_variable_declaration(name, type_name=None):
+    if type_name is not None:
+        execute_with_dictation(
+            name,
+            lambda n: Text("var %s %s" % (format_variable_name(n), type_name)),
+            lambda n: replace_in_text("var $ %s" % type_name)
+        )
+    else:
+        execute_with_dictation(
+            name,
+            lambda n: Text("var %s " % format_variable_name(n)),
+            lambda n: replace_in_text("var $ _")
+        )
+
+
 class GoUtilities(MappingRule):
     mapping = {
+        # control flow
         "if [<name>] is <comparison>": Function(output_if_comparison, construct="if"),
         "if [<name>]": Function(output_if, statement_type="if"),
 
@@ -155,11 +171,16 @@ class GoUtilities(MappingRule):
         "else": Text("else {") + Key("enter"),
         "error check [on <name>]": Function(output_error_check),
 
+        # definitions
         "[<visibility_attribute>] function [<name>]": Function(output_function),
         "[<visibility_attribute>] method [<name>]": Function(output_function, is_method=True),
         "[<visibility_attribute>] struct [<name>]": Function(output_type, construct="struct"),
         "[<visibility_attribute>] interface [<name>]": Function(output_type, construct="interface"),
 
+        # variables
+        "variable [<name>] [is <type_name>]": Function(output_variable_declaration),
+
+        # containers
         "make [<type_name>] slice": Function(output_make_slice),
         "make map [from <type_name> to <type_name2>]": Function(output_make_map),
         "make [<type_name>] channel": Function(output_make_channel),
