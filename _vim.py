@@ -106,9 +106,11 @@ slack_context = AppContext(title="Slack")
 hexchat_context = AppContext(title="HexChat")
 clion_context = AppContext(executable="clion64")
 goland_context = AppContext(executable="goland64")
+pycharm_context = AppContext(executable="pycharm64")
 vim_context = (code_context | firefox_context | terminal_preview_context | discord_context |
                powerbash_context | graphical_neovim_context | skype_context | ripcord_context |
-               edge_context | slack_context | hexchat_context | clion_context | goland_context)
+               edge_context | slack_context | hexchat_context | clion_context | goland_context |
+               pycharm_context)
 
 # the bootstrapper loads the grammar
 VimBootstrap = Grammar("vim bootstrap", context=vim_context)
