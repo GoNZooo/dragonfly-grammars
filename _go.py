@@ -159,6 +159,22 @@ def output_variable_declaration(name, type_name=None):
         )
 
 
+def output_variable_assignment(name):
+    execute_with_dictation(
+        name,
+        lambda n: Text("%s := " % format_variable_name(n)),
+        lambda n: replace_in_text("$ := _")
+    )
+
+
+def output_assignment(name):
+    execute_with_dictation(
+        name,
+        lambda n: Text("%s = " % format_variable_name(n)),
+        lambda n: Text(" = ")
+    )
+
+
 class GoUtilities(MappingRule):
     mapping = {
         # control flow
@@ -179,6 +195,8 @@ class GoUtilities(MappingRule):
 
         # variables
         "variable [<name>] [is <type_name>]": Function(output_variable_declaration),
+        "[<name>] is assigned": Function(output_variable_assignment),
+        "[<name>] equals": Function(output_assignment),
 
         # containers
         "make [<type_name>] slice": Function(output_make_slice),
