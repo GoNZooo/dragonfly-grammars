@@ -196,7 +196,7 @@ def output_switch(name):
 
 
 def output_case():
-    replace_in_text("case $ :").execute()
+    replace_in_text("case $:").execute()
 
 
 class GoUtilities(MappingRule):
