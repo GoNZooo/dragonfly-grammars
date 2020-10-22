@@ -130,6 +130,13 @@ def format_name(name, visibility_attribute):
         return proper(str(name).replace("-", ""))
 
 
+def output_make_map(type_name=None, type_name2=None):
+    if type_name is not None and type_name2 is not None:
+        Text("make(map[%s]%s)" % (type_name, type_name2)).execute()
+    else:
+        replace_in_text("make(map[$]_)").execute()
+
+
 class GoUtilities(MappingRule):
     mapping = {
         "if [<name>] is <comparison>": Function(output_if_comparison, construct="if"),
@@ -147,12 +154,14 @@ class GoUtilities(MappingRule):
         "[<visibility_attribute>] interface [<name>]": Function(output_type, construct="interface"),
 
         "make [<type_name>] slice": Function(output_make_slice),
+        "make map [from <type_name> to <type_name2>]": Function(output_make_map),
     }
 
     extras = [
         Dictation("name", default=""),
         visibility_attribute_choice("visibility_attribute"),
         type_name_choice("type_name"),
+        type_name_choice("type_name2"),
         comparison_choice("comparison"),
     ]
 
