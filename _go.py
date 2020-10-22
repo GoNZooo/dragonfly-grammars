@@ -137,6 +137,13 @@ def output_make_map(type_name=None, type_name2=None):
         replace_in_text("make(map[$]_)").execute()
 
 
+def output_make_channel(type_name=None):
+    if type_name is not None:
+        Text("make(chan %s)" % type_name).execute()
+    else:
+        replace_in_text("make(chan $)").execute()
+
+
 class GoUtilities(MappingRule):
     mapping = {
         "if [<name>] is <comparison>": Function(output_if_comparison, construct="if"),
@@ -155,6 +162,7 @@ class GoUtilities(MappingRule):
 
         "make [<type_name>] slice": Function(output_make_slice),
         "make map [from <type_name> to <type_name2>]": Function(output_make_map),
+        "make [<type_name>] channel": Function(output_make_channel),
     }
 
     extras = [
