@@ -159,7 +159,7 @@ def output_variable_declaration(name, type_name=None):
         )
 
 
-def output_variable_assignment(name):
+def output_variable_initialization(name):
     execute_with_dictation(
         name,
         lambda n: Text("%s := " % format_variable_name(n)),
@@ -175,6 +175,18 @@ def output_assignment(name):
     )
 
 
+def output_for_loop():
+    replace_in_text("for $ {").execute()
+
+
+def output_ranged_for_loop(name):
+    execute_with_dictation(
+        name,
+        lambda n: replace_in_text("for _, $ := range %s {" % format_variable_name(n)),
+        lambda n: replace_in_text("for _, := range $ {")
+    )
+
+
 class GoUtilities(MappingRule):
     mapping = {
         # control flow
@@ -187,6 +199,9 @@ class GoUtilities(MappingRule):
         "else": Text("else {") + Key("enter"),
         "error check [on <name>]": Function(output_error_check),
 
+        "for loop": Function(output_for_loop),
+        "for loop over [<name>]": Function(output_ranged_for_loop),
+
         # definitions
         "[<visibility_attribute>] function [<name>]": Function(output_function),
         "[<visibility_attribute>] method [<name>]": Function(output_function, is_method=True),
@@ -195,7 +210,7 @@ class GoUtilities(MappingRule):
 
         # variables
         "variable [<name>] [is <type_name>]": Function(output_variable_declaration),
-        "[<name>] is assigned": Function(output_variable_assignment),
+        "[<name>] is assigned": Function(output_variable_initialization),
         "[<name>] equals": Function(output_assignment),
 
         # containers
