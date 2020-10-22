@@ -260,8 +260,6 @@ elixirGrammar.add_rule(ElixirDisabler())
 elixirGrammar.load()
 elixirGrammar.disable()
 
-# Unload function which will be called by natlink at unload time.
-
 
 def unload():
     global elixirGrammar

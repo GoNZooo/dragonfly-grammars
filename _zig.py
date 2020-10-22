@@ -678,8 +678,6 @@ zigGrammar.add_rule(ZigDisabler())
 zigGrammar.load()
 zigGrammar.disable()
 
-# Unload function which will be called by natlink at unload time.
-
 
 def unload():
     global zigGrammar

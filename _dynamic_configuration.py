@@ -59,8 +59,6 @@ dynamic_configuration_grammar.add_rule(DynamicConfigurationDisabler())
 dynamic_configuration_grammar.load()
 dynamic_configuration_grammar.enable()
 
-# Unload function which will be called by natlink at unload time.
-
 
 def unload():
     global dynamic_configuration_grammar

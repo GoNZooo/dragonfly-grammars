@@ -154,8 +154,6 @@ terminal_grammar.add_rule(TerminalDisabler())
 terminal_grammar.load()
 terminal_grammar.enable()
 
-# Unload function which will be called by natlink at unload time.
-
 
 def unload():
     global terminal_grammar

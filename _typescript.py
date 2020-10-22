@@ -205,7 +205,7 @@ class TypescriptUtilities(MappingRule):
         # function and value definitions
         "[<visibility_attribute>] function [<function_name>]": Function(output_function),
         "[<visibility_attribute>] asynchronous function [<function_name>]":
-        Function(output_function, asynchronous=True),
+            Function(output_function, asynchronous=True),
         "[<visibility_attribute>] constant [<name>]": Function(output_value,
                                                                definition_type="const"),
         "[<visibility_attribute>] let [<name>]": Function(output_value, definition_type="let"),
@@ -246,8 +246,6 @@ typescriptGrammar.add_rule(TypescriptUtilities())
 typescriptGrammar.add_rule(TypescriptDisabler())
 typescriptGrammar.load()
 typescriptGrammar.disable()
-
-# Unload function which will be called by natlink at unload time.
 
 
 def unload():

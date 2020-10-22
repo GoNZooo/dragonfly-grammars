@@ -78,7 +78,7 @@ def output_class(class_name, superclass):
 def output_from_import(import_name):
     execute_with_dictation(
         import_name,
-        on_dictation=lambda v:  replace_in_text("from %s import ($)" % format_name(v)),
+        on_dictation=lambda v: replace_in_text("from %s import ($)" % format_name(v)),
         on_other=lambda v: replace_in_text("from $ import (_)")
     )
 
@@ -259,8 +259,6 @@ pythonGrammar.add_rule(PythonUtilities())
 pythonGrammar.add_rule(PythonDisabler())
 pythonGrammar.load()
 pythonGrammar.disable()
-
-# Unload function which will be called by natlink at unload time.
 
 
 def unload():

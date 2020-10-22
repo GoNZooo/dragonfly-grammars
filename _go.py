@@ -167,8 +167,6 @@ go_grammar.add_rule(GoDisabler())
 go_grammar.load()
 go_grammar.disable()
 
-# Unload function which will be called by natlink at unload time.
-
 
 def unload():
     global go_grammar

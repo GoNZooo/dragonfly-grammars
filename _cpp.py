@@ -119,8 +119,6 @@ barney_grammar.add_rule(BarneyDisabler())
 barney_grammar.load()
 barney_grammar.disable()
 
-# Unload function which will be called by natlink at unload time.
-
 
 def unload():
     global barney_grammar

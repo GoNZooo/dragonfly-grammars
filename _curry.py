@@ -291,8 +291,6 @@ curryGrammar.add_rule(CurryDisabler())
 curryGrammar.load()
 curryGrammar.disable()
 
-# Unload function which will be called by natlink at unload time.
-
 
 def unload():
     global curryGrammar

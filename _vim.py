@@ -125,8 +125,6 @@ VimGrammar.add_rule(VimEnabler())
 VimGrammar.load()
 VimGrammar.enable()
 
-# Unload function which will be called by natlink at unload time.
-
 
 def unload():
     global VimGrammar
