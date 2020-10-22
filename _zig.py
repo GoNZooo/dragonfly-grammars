@@ -137,12 +137,12 @@ def output_function(function_name, type_name, visibility_attribute=None):
 
     def output_with_type_name(name):
         type_name_components = str(name).split(" ")
-        type_name = format_type_name(name) if len(type_name_components) != 1 else name
+        type_name_output = format_type_name(name) if len(type_name_components) != 1 else name
         command_with_function_name = replace_in_text(
-            "%sfn %s($) %s {}" % (attribute_string, format_function_name(function_name), type_name)
+            "%sfn %s($) %s {}" % (attribute_string, format_function_name(function_name), type_name_output)
         )
         command_without_function_name = replace_in_text(
-            "%sfn $(_) %s {}" % (attribute_string, type_name)
+            "%sfn $(_) %s {}" % (attribute_string, type_name_output)
         )
 
         return with_dictation(
@@ -312,8 +312,8 @@ def output_typecast(value_name, type_choice=None, is_safe=True):
             lambda n: replace_in_text("@as($, _)")
         )
 
-    def execute_with_type_choice(name, choice):
-        def command_with_name(n, is_safe):
+    def execute_with_type_choice(name):
+        def command_with_name(n):
             safe_expression = type_choice.get_safe_cast_expression(n)
             unsafe_expression = type_choice.get_cast_expression(n)
 
@@ -321,14 +321,14 @@ def output_typecast(value_name, type_choice=None, is_safe=True):
 
         execute_with_dictation(
             name,
-            lambda n: command_with_name(n, is_safe),
-            lambda n: command_with_name("$", is_safe)
+            lambda n: command_with_name(n),
+            lambda n: command_with_name("$")
         )
 
     if type_choice is None:
         execute_without_type_choice(value_name)
     else:
-        execute_with_type_choice(value_name, type_choice)
+        execute_with_type_choice(value_name)
 
 
 calling_convention_choice_map = {
