@@ -207,6 +207,14 @@ def output_case():
     replace_in_text("case $:").execute()
 
 
+def output_anonymous_function(name):
+    execute_with_dictation(
+        name,
+        lambda n: replace_in_text("func (%s $) _ {" % format_variable_name(n)),
+        lambda n: replace_in_text("func ($) _ {")
+    )
+
+
 class GoUtilities(MappingRule):
     mapping = {
         # control flow
@@ -243,6 +251,9 @@ class GoUtilities(MappingRule):
         "make [<type_name>] slice": Function(output_make_slice),
         "make map [from <type_name> to <type_name2>]": Function(output_make_map),
         "make [<type_name>] channel": Function(output_make_channel),
+
+        # miscellaneous utilities
+        "anonymous function [taking <name>]": Function(output_anonymous_function),
     }
 
     extras = [
