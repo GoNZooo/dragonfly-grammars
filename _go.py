@@ -213,6 +213,7 @@ class GoUtilities(MappingRule):
 
         "switch [on <name>]": Function(output_switch),
         "case": Function(output_case),
+        "select": Text("select {\n"),
 
         "for loop": Function(output_for_loop),
         "for loop over [<name>]": Function(output_ranged_for_loop),
