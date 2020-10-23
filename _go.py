@@ -1,4 +1,5 @@
-from dragonfly import (CompoundRule, MappingRule, Grammar, Function, Choice, Dictation, Text, Key)
+from dragonfly import (CompoundRule, MappingRule, Grammar, Function, Choice, Dictation, Text, Key, IntegerRef)
+
 from macro_utilities import (execute_with_dictation, replace_in_text)
 from vim.rules.letter import (camel_case, proper)
 
@@ -215,6 +216,14 @@ def output_anonymous_function(name):
     )
 
 
+def output_index_brackets(index, name):
+    execute_with_dictation(
+        name,
+        lambda n: Text("%s[%d]" % (format_variable_name(n), index)),
+        lambda n: Text("[%d]" % index)
+    )
+
+
 class GoUtilities(MappingRule):
     mapping = {
         # control flow
@@ -254,6 +263,7 @@ class GoUtilities(MappingRule):
 
         # miscellaneous utilities
         "anonymous function [taking <name>]": Function(output_anonymous_function),
+        "indexing <index> [into <name>]": Function(output_index_brackets),
     }
 
     extras = [
@@ -262,6 +272,7 @@ class GoUtilities(MappingRule):
         type_name_choice("type_name"),
         type_name_choice("type_name2"),
         comparison_choice("comparison"),
+        IntegerRef("index", min=0, max=9999999999),
     ]
 
 
