@@ -188,12 +188,19 @@ def output_for_loop():
     replace_in_text("for $ {").execute()
 
 
-def output_ranged_for_loop(name):
-    execute_with_dictation(
-        name,
-        lambda n: replace_in_text("for _, $ := range %s {" % format_variable_name(n)),
-        lambda n: replace_in_text("for _, := range $ {")
-    )
+def output_ranged_for_loop(binding_name, name):
+    if name != "":
+        if binding_name != "":
+            Text(
+                "for _, %s := range %s {\n" % (format_variable_name(binding_name), format_variable_name(name))
+            ).execute()
+        else:
+            replace_in_text("for _, $ := range %s {" % format_variable_name(name)).execute()
+    else:
+        if binding_name != "":
+            replace_in_text("for _, %s := range $ {" % format_variable_name(binding_name)).execute()
+        else:
+            replace_in_text("for _, _ := range $ {").execute()
 
 
 def output_switch(name):
@@ -243,7 +250,7 @@ class GoUtilities(MappingRule):
         "select": Text("select {\n"),
 
         "for loop": Function(output_for_loop),
-        "for loop over [<name>]": Function(output_ranged_for_loop),
+        "for [<binding_name>] in [<name>]": Function(output_ranged_for_loop),
 
         # definitions
         "[<visibility_attribute>] function [<name>]": Function(output_function),
@@ -268,6 +275,7 @@ class GoUtilities(MappingRule):
 
     extras = [
         Dictation("name", default=""),
+        Dictation("binding_name", default=""),
         visibility_attribute_choice("visibility_attribute"),
         type_name_choice("type_name"),
         type_name_choice("type_name2"),
