@@ -193,18 +193,18 @@ def output_check_comparison(name, comparison=None):
 
 def output_function_call(function_name, name):
     def do_output(fn):
-        if fn != "$":
-            return with_dictation(
-                name,
-                lambda n: Text("%s(%s)" % (format_function_name(fn), format_name(n))),
-                lambda n: replace_in_text("%s($)" % format_function_name(fn))
-            )
-        else:
-            return with_dictation(
-                name,
-                lambda n: replace_in_text("$(%s)" % format_name(n)),
-                lambda n: replace_in_text("$(_)")
-            )
+        with_function_name = with_dictation(
+            name,
+            lambda n: Text("%s(%s)" % (format_function_name(fn), format_name(n))),
+            lambda n: replace_in_text("%s($)" % format_function_name(fn))
+        )
+        without_function_name = with_dictation(
+            name,
+            lambda n: replace_in_text("$(%s)" % format_name(n)),
+            lambda n: replace_in_text("$(_)")
+        )
+
+        return without_function_name if fn == "$" else with_function_name
 
     execute_with_dictation(
         function_name,
@@ -215,18 +215,19 @@ def output_function_call(function_name, name):
 
 def output_method_call(function_name, name):
     def do_output(fn):
-        if fn != "$":
-            return with_dictation(
-                name,
-                lambda n: Text("%s.%s()" % (format_name(n), format_function_name(fn))),
-                lambda n: replace_in_text("$.%s()" % format_function_name(fn))
-            )
-        else:
-            return with_dictation(
-                name,
-                lambda n: replace_in_text("%s.$()" % format_name(n)),
-                lambda n: replace_in_text("$._()")
-            )
+        with_method_name = with_dictation(
+            name,
+            lambda n: Text("%s.%s()" % (format_name(n), format_function_name(fn))),
+            lambda n: replace_in_text("$.%s()" % format_function_name(fn))
+        )
+
+        without_method_name = with_dictation(
+            name,
+            lambda n: replace_in_text("%s.$()" % format_name(n)),
+            lambda n: replace_in_text("$._()")
+        )
+
+        return without_method_name if fn == "$" else with_method_name
 
     execute_with_dictation(
         function_name,
