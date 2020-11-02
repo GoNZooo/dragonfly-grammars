@@ -1,5 +1,5 @@
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Function, Dictation, Choice)
-from macro_utilities import (replace_in_text)
+from macro_utilities import (replace_in_text, execute_with_dictation, with_dictation)
 from vim.rules.letter import (camel_case, proper, barbecue)
 
 
@@ -191,6 +191,28 @@ def output_check_comparison(name, comparison=None):
         command.execute()
 
 
+def output_function_call(function_name, name):
+    def do_output(fn):
+        if fn != "$":
+            return with_dictation(
+                name,
+                lambda n: Text("%s(%s)" % (format_function_name(fn), format_name(n))),
+                lambda n: replace_in_text("%s($)" % fn)
+            )
+        else:
+            return with_dictation(
+                name,
+                lambda n: replace_in_text("$(%s)" % format_name(n)),
+                lambda n: replace_in_text("$(_)")
+            )
+
+    execute_with_dictation(
+        function_name,
+        lambda n: do_output(n),
+        lambda n: do_output("$")
+    )
+
+
 class TypescriptUtilities(MappingRule):
     mapping = {
         # control flow
@@ -215,6 +237,9 @@ class TypescriptUtilities(MappingRule):
         # type definitions
         "[<visibility_attribute>] interface [<type_name>]": Function(output_interface),
         "[<visibility_attribute>] type [<type_name>]": Function(output_type),
+
+        # calling functions and methods
+        "call [<function_name>] with [<name>]": Function(output_function_call),
 
         # miscellaneous helpers
         "import from [<import_name>]": Function(output_import_from),
