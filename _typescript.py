@@ -197,13 +197,35 @@ def output_function_call(function_name, name):
             return with_dictation(
                 name,
                 lambda n: Text("%s(%s)" % (format_function_name(fn), format_name(n))),
-                lambda n: replace_in_text("%s($)" % fn)
+                lambda n: replace_in_text("%s($)" % format_function_name(fn))
             )
         else:
             return with_dictation(
                 name,
                 lambda n: replace_in_text("$(%s)" % format_name(n)),
                 lambda n: replace_in_text("$(_)")
+            )
+
+    execute_with_dictation(
+        function_name,
+        lambda n: do_output(n),
+        lambda n: do_output("$")
+    )
+
+
+def output_method_call(function_name, name):
+    def do_output(fn):
+        if fn != "$":
+            return with_dictation(
+                name,
+                lambda n: Text("%s.%s()" % (format_name(n), format_function_name(fn))),
+                lambda n: replace_in_text("$.%s()" % format_function_name(fn))
+            )
+        else:
+            return with_dictation(
+                name,
+                lambda n: replace_in_text("%s.$()" % format_name(n)),
+                lambda n: replace_in_text("$._()")
             )
 
     execute_with_dictation(
@@ -240,6 +262,7 @@ class TypescriptUtilities(MappingRule):
 
         # calling functions and methods
         "call [<function_name>] with [<name>]": Function(output_function_call),
+        "method [<function_name>] on [<name>]": Function(output_method_call),
 
         # miscellaneous helpers
         "import from [<import_name>]": Function(output_import_from),
