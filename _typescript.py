@@ -1,5 +1,5 @@
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Function, Dictation, Choice)
-from macro_utilities import (replace_in_text, execute_with_dictation, with_dictation)
+from macro_utilities import (replace_in_text, execute_with_dictation, with_dictation, comment_choice)
 from vim.rules.letter import (camel_case, proper, barbecue)
 
 
@@ -235,6 +235,11 @@ def output_method_call(function_name, name):
     )
 
 
+def output_comment(comment, comment_type=None):
+    type_output = comment_type if comment_type is not None else ""
+    Text("// %s %s" % (type_output, comment)).execute()
+
+
 class TypescriptUtilities(MappingRule):
     mapping = {
         # control flow
@@ -269,6 +274,7 @@ class TypescriptUtilities(MappingRule):
         "import as [<import_name>]": Function(output_import_as),
         "import react": Text("import * as React from \"react\";"),
         "import express": Text("import express from \"express\";"),
+        "[<comment_type>] comment [<comment>]": Function(output_comment),
 
         "arrow": Text(" => "),
         "a sink": Text("async "),
@@ -279,8 +285,10 @@ class TypescriptUtilities(MappingRule):
         Dictation("function_name", default=""),
         Dictation("import_name", default=""),
         Dictation("type_name", default=""),
+        Dictation("comment", default=""),
         visibility_attribute_choice("visibility_attribute"),
         comparison_choice("comparison"),
+        comment_choice("comment_type"),
     ]
 
 
