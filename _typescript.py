@@ -51,17 +51,20 @@ def output_function(function_name, visibility_attribute=None, asynchronous=False
 
 
 comparison_choice_map = {
-    "equal": "===",
-    "not equal": "!==",
-    "less or equal": "<=",
-    "greater or equal": ">=",
-    "less": "<",
-    "greater": ">",
+    "equal": ("=== $", replace_in_text),
+    "not equal": ("!== $", replace_in_text),
+    "less or equal": ("<= $", replace_in_text),
+    "greater or equal": (">= $", replace_in_text),
+    "less": ("< $", replace_in_text),
+    "greater": ("> $", replace_in_text),
     # these are all for null
-    "null": "=== null",
-    "not null": "!== null",
-    "none": "=== null",
-    "not none": "!== null",
+    "null": ("=== null", Text),
+    "not null": ("!== null", Text),
+    "none": ("=== null", Text),
+    "not none": ("!== null", Text),
+    # for undefined
+    "undefined": ("=== undefined", Text),
+    "not undefined": ("!== undefined", Text),
 }
 
 
@@ -71,12 +74,12 @@ def comparison_choice(name="comparison"):
 
 def output_if_comparison(name, comparison=None, construct="if"):
     if comparison is not None:
-        if name == "":
-            command = replace_in_text("%s ($ %s) {}" % (construct, comparison))
-        else:
-            name = format_name(name)
-            command = replace_in_text("%s (%s %s $) {}" % (construct, name, comparison))
-        command.execute()
+        (comparison_text, comparison_command) = comparison
+        execute_with_dictation(
+            name,
+            lambda n: comparison_command("%s (%s %s) {}" % (construct, format_name(n), comparison_text)),
+            lambda n: replace_in_text("%s ($ %s) {}" % (construct, comparison_text))
+        )
     else:
         if name == "":
             command = replace_in_text("%s ($) {}" % construct)
@@ -179,8 +182,9 @@ def output_binding(name):
 
 def output_check_comparison(name, comparison=None):
     if comparison is not None:
+        (comparison_text, comparison_command) = comparison
         if name == "":
-            command = replace_in_text("$ %s" % comparison)
+            command = replace_in_text("$ %s" % comparison_text)
         else:
             name = format_name(name)
             command = Text("%s %s " % (name, comparison))
