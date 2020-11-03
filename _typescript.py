@@ -245,6 +245,7 @@ class TypescriptUtilities(MappingRule):
         # control flow
         "if [<name>] [is <comparison>]": Function(output_if_comparison),
         "else if [<name>] [is <comparison>]": Function(output_if_comparison, construct="else if"),
+        "else": Text("else {\n"),
         "switch [<name>]": Function(output_switch),
         "ternary": replace_in_text("$ ? _ : _"),
 
