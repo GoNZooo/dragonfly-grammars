@@ -1,5 +1,6 @@
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Function, Dictation, Choice)
-from macro_utilities import (replace_in_text, execute_with_dictation, with_dictation, comment_choice)
+from macro_utilities import (replace_in_text, execute_with_dictation, with_dictation,
+                             comment_choice)
 from vim.rules.letter import (camel_case, proper, barbecue)
 
 
@@ -44,9 +45,13 @@ def output_function(function_name, visibility_attribute=None, asynchronous=False
     execute_with_dictation(
         function_name,
         lambda n: replace_in_text(
-            "%sconst %s = %s($): _ => {};" % (attribute_output, format_function_name(n), asynchronous_output)
+            "%sconst %s = %s($): _ => {};" % (
+                attribute_output, format_function_name(n), asynchronous_output
+            )
         ),
-        lambda n: replace_in_text("%sconst $ = %s(_): _ => {};" % (attribute_output, asynchronous_output))
+        lambda n: replace_in_text(
+            "%sconst $ = %s(_): _ => {};" % (attribute_output, asynchronous_output)
+        )
     )
 
 
@@ -77,7 +82,9 @@ def output_if_comparison(name, comparison=None, construct="if"):
         (comparison_text, comparison_command) = comparison
         execute_with_dictation(
             name,
-            lambda n: comparison_command("%s (%s %s) {}" % (construct, format_name(n), comparison_text)),
+            lambda n: comparison_command(
+                "%s (%s %s) {}" % (construct, format_name(n), comparison_text)
+            ),
             lambda n: replace_in_text("%s ($ %s) {}" % (construct, comparison_text))
         )
     else:
