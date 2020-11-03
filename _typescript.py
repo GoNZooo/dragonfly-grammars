@@ -41,14 +41,15 @@ def output_function(function_name, visibility_attribute=None, asynchronous=False
     if asynchronous:
         asynchronous_output = "async "
 
-    if function_name == "":
-        command = replace_in_text("%sconst $ = %s(_): _ => {};" %
-                                  (attribute_output, asynchronous_output))
-    else:
-        function_name = format_function_name(function_name)
-        command = replace_in_text("%sconst %s = %s($): _ => {};" % (
-            attribute_output, function_name, asynchronous_output))
-    command.execute()
+    execute_with_dictation(
+        function_name,
+        lambda n: replace_in_text(
+            "%sconst %s = %s($): _ => {};" % (
+                attribute_output, format_function_name(function_name), asynchronous_output
+            )
+        ),
+        replace_in_text("%sconst $ = %s(_): _ => {};" % (attribute_output, asynchronous_output))
+    )
 
 
 comparison_choice_map = {
