@@ -81,12 +81,11 @@ def output_if_comparison(name, comparison=None, construct="if"):
             lambda n: replace_in_text("%s ($ %s) {}" % (construct, comparison_text))
         )
     else:
-        if name == "":
-            command = replace_in_text("%s ($) {}" % construct)
-        else:
-            name = format_name(name)
-            command = Text("%s (%s) {}" % (construct, name))
-        command.execute()
+        execute_with_dictation(
+            name,
+            lambda n: Text("%s (%s) {}" % (construct, format_name(n))),
+            lambda n: replace_in_text("%s ($) {}" % construct)
+        )
 
 
 def output_value(name, definition_type, visibility_attribute=None):
