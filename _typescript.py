@@ -63,9 +63,6 @@ comparison_choice_map = {
     "not null": "!== null",
     "none": "=== null",
     "not none": "!== null",
-    # this is the closest thing that Dragon hears when I say "null"
-    "now": "=== null",
-    "not now": "!== null",
 }
 
 
