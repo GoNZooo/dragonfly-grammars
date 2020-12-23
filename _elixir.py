@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Function, Dictation, Choice)
-from macro_utilities import (replace_in_text, execute_with_dictation)
+from macro_utilities import (replace_in_text, execute_with_dictation, comment_choice)
 from vim.rules.letter import (proper, snake_case)
 
 
@@ -123,6 +123,11 @@ def output_pipe_into(name):
     )
 
 
+def output_comment(comment, comment_type=None):
+    type_output = comment_type + " " if comment_type is not None else ""
+    Text("# %s%s" % (type_output, comment)).execute()
+
+
 log_level_choice_map = {
     "debug": "debug",
     "warn": "warn",
@@ -235,6 +240,7 @@ class ElixirUtilities(MappingRule):
         "interactive [<interactive_command>]": Function(output_interactive_command),
         "pipe into [<name>]": Function(output_pipe_into),
         "mix <mix_command>": Function(output_mix_command),
+        "[<comment_type>] comment [<comment>]": Function(output_comment),
     }
 
     extras = [
@@ -242,10 +248,12 @@ class ElixirUtilities(MappingRule):
         Dictation("alias_name", default=""),
         Dictation("name", default=""),
         Dictation("binding", default=""),
+        Dictation("comment", default=""),
         gen_server_command_choice("gen_server_command"),
         log_level_choice("log_level"),
         interactive_command_choice("interactive_command"),
         mix_command_choice("mix_command"),
+        comment_choice("comment_type"),
     ]
 
 
