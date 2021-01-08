@@ -45,12 +45,12 @@ def output_function(function_name, visibility_attribute=None, asynchronous=False
     execute_with_dictation(
         function_name,
         lambda n: replace_in_text(
-            "%sconst %s = %s($): _ => {};" % (
-                attribute_output, format_function_name(n), asynchronous_output
+            "%s%sfunction %s($): _ {}" % (
+                attribute_output, asynchronous_output, format_function_name(n)
             )
         ),
         lambda n: replace_in_text(
-            "%sconst $ = %s(_): _ => {};" % (attribute_output, asynchronous_output)
+            "%s%sfunction $(_): _ {}" % (attribute_output, asynchronous_output)
         )
     )
 
