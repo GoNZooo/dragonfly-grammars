@@ -212,6 +212,8 @@ stack_command_choice_map = {
     "build": "build",
     "shell": "repl",
     "shall": "repl",
+    "test": "test",
+    "test fast": "test --fast",
     "run": "run",
     "install": "install",
 }
