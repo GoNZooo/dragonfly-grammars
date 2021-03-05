@@ -259,7 +259,7 @@ class CurryUtilities(MappingRule):
         "operator bind": Text(" >>= "),
         "discard": Text(" >> "),
         "[<name>] equals": Function(output_binding),
-        "bind [to <name>]": Function(output_bind),
+        "bind [<name>]": Function(output_bind),
         "backwards arrow": Text(" <- "),
         "backwards fat arrow": Text(" <= "),
         "arrow": Text(" -> "),
