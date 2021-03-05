@@ -1,5 +1,5 @@
 from dragonfly import (Grammar, CompoundRule, Text, MappingRule, Dictation, Function, Choice)
-from macro_utilities import (replace_in_text, comment_choice)
+from macro_utilities import (replace_in_text, comment_choice, execute_with_dictation)
 from vim.rules.letter import (camel_case, proper)
 
 
@@ -50,6 +50,31 @@ def output_case(name):
         name = dictation_to_identifier(name)
         command = Text("case %s of" % name)
     command.execute()
+
+
+comparison_choice_map = {
+    "equal": "==",
+    "not equal": "/=",
+    "less or equal": "<=",
+    "greater or equal": ">=",
+    "less": "<",
+    "greater": ">",
+}
+
+
+def comparison_choice(name="comparison"):
+    return Choice(name, comparison_choice_map)
+
+
+def output_if_comparison(name, construct, comparison=None):
+    if comparison is not None:
+        execute_with_dictation(
+            name,
+            lambda n: replace_in_text(
+                "%s %s %s $ then _ else _" % (construct, dictation_to_identifier(n), comparison)
+            ),
+            lambda n: replace_in_text("%s $ %s _ then _ else _" % (construct, comparison))
+        )
 
 
 def output_if(name):
@@ -113,23 +138,6 @@ def output_binding(name):
     else:
         name = dictation_to_identifier(name)
         command = Text("%s = " % name)
-    command.execute()
-
-
-def output_if_equal(name):
-    output_if_comparison("==", name)
-
-
-def output_if_not_equal(name):
-    output_if_comparison("/=", name)
-
-
-def output_if_comparison(comparison, name):
-    if name == "":
-        command = replace_in_text("if $ %s _ then _ else _" % comparison)
-    else:
-        name = dictation_to_identifier(name)
-        command = replace_in_text("if %s %s $ then _ else _" % (name, comparison))
     command.execute()
 
 
@@ -234,9 +242,8 @@ def output_stack_command(stack_command=None):
 
 class CurryUtilities(MappingRule):
     mapping = {
+        "if [<name>] is <comparison>": Function(output_if_comparison, construct="if"),
         "if [<name>]": Function(output_if),
-        "if [<name>] is equal": Function(output_if_equal),
-        "if [<name>] is not equal": Function(output_if_not_equal),
         "case [on <name>]": Function(output_case),
         "let [<name>]": Function(output_let),
         "anonymous function": replace_in_text("\\$ -> _"),
@@ -279,6 +286,7 @@ class CurryUtilities(MappingRule):
         Dictation("language_extension", default=""),
         comment_choice("comment_type"),
         stack_command_choice("stack_command"),
+        comparison_choice("comparison"),
     ]
 
 
